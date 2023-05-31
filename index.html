@@ -15,7 +15,8 @@
             <label for="sessionToken">Enter provided session token:</label><br>
             <input type="password" id="sessionToken" name="sessionToken" value=""><br>
             <button type="button" onclick="getInfo()">Get Info</button>
-            <button type="button" onclick="killConnection()">Kill Session</button><br>
+            <button type="button" onclick="killConnection()">Kill Session</button><br><br>
+            <button type="button" onclick="searchByTag()">Search</button>
             
         </form>
 
@@ -28,8 +29,6 @@
         <p id="memory"></p>
         <p id="drive"></p>
     </body>
-
-    
 </html>
 
 
@@ -143,5 +142,26 @@
         else {
             document.getElementById("drive").innerHTML = "No drive found"
         }
+    }
+    // Searching GLPI database for laptop based on serial ID
+    function searchByTag(){
+        let sessionToken = document.getElementById("sessionToken").value;
+        $.ajax({
+            type: 'GET',
+            url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer/value="g7qpf13',
+            data: {},
+            crossDomain: true,
+            
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('Session-Token', sessionToken )
+                xhr.setRequestHeader('Authorization', document.getElementById("userToken").value)
+
+                
+            },
+            success: function(data){
+                var json = data;
+                displayInfo(data)
+            }
+        });
     }
 </script>
