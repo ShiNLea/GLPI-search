@@ -82,7 +82,7 @@
         let sessionToken = document.getElementById("sessionToken").value;
         $.ajax({
             type: 'GET',
-            url: "https://glpi.bdli.local/glpi/apirest.php/Computer/1268?expand_dropdowns=true&with_devices=true",
+            url: "https://glpi.bdli.local/glpi/apirest.php/Computer/864?expand_dropdowns=true&with_devices=true",
             data: {},
             crossDomain: true,
             
@@ -148,7 +148,7 @@
         let sessionToken = document.getElementById("sessionToken").value;
         $.ajax({
             type: 'GET',
-            url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer/value="g7qpf13',
+            url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer?criteria[0][field]="name"&criteria[0][searchtype]=contains&criteria[0][value]="L0-G7QPF13"',
             data: {},
             crossDomain: true,
             
