@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+    <script src="jquery-3.7.0.min.js"></script>
+    <body>
+        <h1>GLPI info grab thing (name and UI wip)</h1>
+
+        <form>
+            <label for="sTag">Enter app token (found on GLPI API page):</label><br>
+
+            <input type="password" id="userToken" name="userToken" value="***REMOVED***"><br>
+            <button type="button" onclick="establishConnection()">
+                LEMME IN
+            </button><br>
+
+            <label for="sessionToken">Enter provided session token:</label><br>
+            <input type="password" id="sessionToken" name="sessionToken" value=""><br>
+            <button type="button" onclick="getInfo()">Get Info</button>
+            <button type="button" onclick="killConnection()">Kill Session</button><br>
+            
+        </form>
+
+        <!--Displaying grabbed info-->
+        <h2>Info Display</h2><br>
+        <p id="serial"></p>
+        <p id="manufacturer"></p>
+        <p id="model"></p>
+        <p id="cpu"></p>
+        <p id="memory"></p>
+        <p id="drive"></p>
+    </body>
+
+    
+</html>
+
+
+<!--Back End stuff-->
+<!--
+    This entails exactly what it says it is: stuff in the back end. It takes
+    the inputted service tag, and uses that to talk to GLPI's API.
+-->
+<script>
+    function establishConnection() {
+        let userToken = document.getElementById("userToken").value;
+        let finalHeader = "user_token ".concat(userToken);
+        $.ajax({
+            type: 'GET',
+            url: "https://glpi.bdli.local/glpi/apirest.php/initSession",
+            data: {},
+            crossDomain: true,
+            
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('Authorization', finalHeader);
+            },
+            success: function(data){
+                var json = data
+                console.log("Session token: " + json.session_token);
+                return json.session_token;
+            }
+
+        });
+    }
+
+    // Killing the granted session token
+    function killConnection(){
+        let sessionToken = document.getElementById("sessionToken").value;
+        $.ajax({
+            type: 'GET',
+            url: "https://glpi.bdli.local/glpi/apirest.php/killSession",
+            data: {},
+            crossDomain: true,
+            
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('Session-Token', sessionToken )
+            },
+            success: function(data){
+                var json = data;
+            }
+        });
+    }
+
+    // Grabbing the info for the chosen system via API endpoint
+    function getInfo(){
+        let sessionToken = document.getElementById("sessionToken").value;
+        $.ajax({
+            type: 'GET',
+            url: "https://glpi.bdli.local/glpi/apirest.php/Computer/1268?expand_dropdowns=true&with_devices=true",
+            data: {},
+            crossDomain: true,
+            
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('Session-Token', sessionToken )
+                xhr.setRequestHeader('Authorization', document.getElementById("userToken").value)
+            },
+            success: function(data){
+                var json = data;
+                displayInfo(data)
+            }
+        });
+    }
+    // Information Display Function //
+    function displayInfo(data){
+
+        // Pre-calling object keys for non-hardcoding purposes as the 
+        // ID#s for each of the below is different and cannot be grabbed
+        let driveKey = Object.keys(data._devices['Item_DeviceHardDrive']);
+        let memKey = Object.keys(data._devices['Item_DeviceMemory']);
+        let cpuKey = Object.keys(data._devices['Item_DeviceProcessor']);
+
+        // Writing all the stuff that there's (probably) only one of
+        document.getElementById("serial").innerHTML = "Serial: " + data.serial;
+        document.getElementById("manufacturer").innerHTML = "Manufacturer: " + data.manufacturers_id;
+        document.getElementById("model").innerHTML = "Model: " + data.computermodels_id;
+        document.getElementById("cpu").innerHTML = "CPU: " + data._devices["Item_DeviceProcessor"][cpuKey]["deviceprocessors_id"];
+
+        if(memKey.length > 1) {
+            let memTotal = 0;
+            for (var i = 0; i < memKey.length; i++){
+                var currentMemSize = data._devices["Item_DeviceMemory"][memKey[i]]["size"];
+                document.getElementById("memory").innerHTML += 
+                "Memory " + (i+1) + ": " + currentMemSize + "mb<br>";
+                memTotal += currentMemSize;
+            }
+            document.getElementById("memory").innerHTML += "Total memory: " + memTotal + "mb";
+        }
+        else if (memKey.length == 1){
+            document.getElementById("memory").innerHTML += 
+            "Memory: " + data._devices["Item_DeviceMemory"][memKey]["size"];
+        }
+        else {
+            document.getElementById("memory").innerHTML = "No memory found"
+        }
+        // HDD Info Display //
+        if(driveKey.length > 1) {
+            for (var i = 0; i < driveKey.length; i++){
+                document.getElementById("drive") += 
+                "Drive" + (i+1) + ": " + data._devices["Item_DeviceHardDrive"][driveKey]["deviceharddrives_id"]
+            }
+        }
+        else if (driveKey.length == 1){
+            document.getElementById("drive").innerHTML += 
+            "Drive: " + data._devices["Item_DeviceHardDrive"][driveKey]["deviceharddrives_id"];
+        }
+        else {
+            document.getElementById("drive").innerHTML = "No drive found"
+        }
+    }
+</script>
