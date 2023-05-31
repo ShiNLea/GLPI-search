@@ -148,7 +148,8 @@
         let sessionToken = document.getElementById("sessionToken").value;
         $.ajax({
             type: 'GET',
-            url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer?criteria[0][field]="name"&criteria[0][searchtype]=contains&criteria[0][value]="L0-G7QPF13"',
+            url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer?criteria[0][field]="name"&criteria[0][searchtype]=0&criteria[0][value]="L0-G7QPF13"',
+            //url: 'https://glpi.bdli.local/glpi/apirest.php/listSearchOptions/Computer',
             data: {},
             crossDomain: true,
             
