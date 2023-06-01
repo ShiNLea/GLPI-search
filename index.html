@@ -52,8 +52,8 @@
     function establishConnection() {
         let userToken = document.getElementById("userToken").value;
         let finalHeader = "user_token ".concat(userToken);
-    
-        function getToken(callback) {
+        
+        let callToken = new Promise(function(resolve) {
             $.ajax({
                 type: 'GET',
                 url: "https://glpi.bdli.local/glpi/apirest.php/initSession",
@@ -64,23 +64,26 @@
                     xhr.setRequestHeader('Authorization', finalHeader);
                 },
                 success: function(data){
-                    
-                    var json = data
-                    callback(json.session_token)
-                }
-                
-            });
-        }
-        var finalKey = ""
-        finalKey = getToken(function (key) {
-            console.log("now feeding " + key);
-            return key;
+                    console.log("connection made");
+                    resolve(data);
+                }    
+            }) 
+            .then((data) => {
+                console.log("session token is " + data.sessionToken);
+                return data.sessionToken;
+            })
+        return callToken;
         });
-        while (finalKey == "") {
-            
-        };
-        console.log("key: " + finalKey);
-        return finalKey;
+        /*callToken.then((result) => {
+            return result.sessionToken;
+        const returnToken = () => {
+            sessionToken.then((a)=> {
+                return a;
+            })
+        }
+        return returnToken();
+        });*/
+        
     }
 
     // Killing the granted session token
