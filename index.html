@@ -5,29 +5,14 @@
         <h1>GLPI info grab (name and UI wip)</h1>
         <label for="sTag">Enter app token (found on GLPI API page):</label><br>
         <form>
-            <input type="password" id="userToken" name="userToken" value=""><br>
+            <input type="password" id="userToken" name="userToken" value="">
+            <p id="successMessage"></p>
             <button type="button" id="get_Connection">Submit Token</button><br>
             <button type="button" id="get_Info">Get Info</button>
             <button type="button" id="kill_Connection">Kill Session</button><br><br>
             <button type="button" id="search_By_Tag">Search</button>
 
-            <script>
-                const getConnection = document.querySelector("#get_Connection");
-                const getSpecs = document.querySelector("#get_Info");
-                const killSession = document.querySelector("#kill_Connection");
-                const tagLookup = document.querySelector("#search_By_Tag");
-
-                var sessionToken = ""
-                getConnection.onclick = function(){
-                    sessionToken = establishConnection();
-                    
-                };
-                
-                getSpecs.onclick = () => {getInfo(sessionToken)};
-                killSession.onclick = () => {killConnection(sessionToken)};
-                tagLookup.onclick = () => {searchByTag(sessionToken)};
-                
-            </script>
+            
         </form>
         <!--Displaying grabbed info-->
         <h2>Info Display</h2><br>
@@ -47,13 +32,22 @@
     the inputted service tag, and uses that to talk to GLPI's API.
 -->
 <script>
-    
+    const getConnection = document.querySelector("#get_Connection");
+    const getSpecs = document.querySelector("#get_Info");
+    const killSession = document.querySelector("#kill_Connection");
+    const tagLookup = document.querySelector("#search_By_Tag");
+
+    var sessionToken
+    getConnection.onclick = () => {establishConnection()};
+    getSpecs.onclick = () => {getInfo(sessionToken)};
+    killSession.onclick = () => {killConnection(sessionToken)};
+    tagLookup.onclick = () => {searchByTag(sessionToken)};
+
 
     function establishConnection() {
-        let userToken = document.getElementById("userToken").value;
-        let finalHeader = "user_token ".concat(userToken);
-        
-        let callToken = new Promise(function(resolve) {
+        const getToken = new Promise(function(resolve, reject) {
+            let userToken = document.getElementById("userToken").value;
+            let finalHeader = "user_token ".concat(userToken);
             $.ajax({
                 type: 'GET',
                 url: "https://glpi.bdli.local/glpi/apirest.php/initSession",
@@ -64,31 +58,23 @@
                     xhr.setRequestHeader('Authorization', finalHeader);
                 },
                 success: function(data){
-                    console.log("connection made");
+                    document.getElementById("successMessage").innerHTML = "Entry granted"
+                    console.log("session started")
                     resolve(data);
-                }    
-            }) 
-            .then((data) => {
-                console.log("session token is " + data.sessionToken);
-                return data.sessionToken;
+                } ,
+                error: function(data) {
+                    document.getElementById("successMessage").innerHTML = "Incorrect API token"
+                    console.log("error occurred")
+                }
             })
-        return callToken;
-        });
-        /*callToken.then((result) => {
-            return result.sessionToken;
-        const returnToken = () => {
-            sessionToken.then((a)=> {
-                return a;
-            })
-        }
-        return returnToken();
-        });*/
-        
-    }
-
+        })
+        getToken.then((token) => {
+            console.log("token: " + token.session_token)
+            sessionToken = token.session_token;
+        })
+    };
     // Killing the granted session token
     function killConnection(sessionToken){
-        console.log("session token is " + sessionToken)
         $.ajax({
             type: 'GET',
             url: "https://glpi.bdli.local/glpi/apirest.php/killSession",
@@ -100,6 +86,7 @@
             },
             success: function(data){
                 var json = data;
+                console.log("Session killed")
             }
         });
     }
@@ -176,7 +163,7 @@
     function searchByTag(sessionToken){
         $.ajax({
             type: 'GET',
-            url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer?criteria[0][field]="name"&criteria[0][searchtype]=0&criteria[0][value]="L0-G7QPF13"',
+            url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=view&criteria[0][searchtype]=contains&criteria[0][value]=g7qpf13&search=Search&itemtype=Computer',
             //url: 'https://glpi.bdli.local/glpi/apirest.php/listSearchOptions/Computer',
             data: {},
             crossDomain: true,
