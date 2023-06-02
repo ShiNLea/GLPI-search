@@ -16,14 +16,16 @@
 
             
         </form>
-        <!--Displaying grabbed info-->
-        <h2 id="infoHeader"></h2><br>
+        <h2 id="infoHeader"></h2>
         <p id="serial"></p>
         <p id="manufacturer"></p>
         <p id="model"></p>
         <p id="cpu"></p>
         <p id="memory"></p>
         <p id="drive"></p>
+        <!--Displaying grabbed info-->        
+        <table id="infoTable"></table><br>
+        
     </body>
 </html>
 
@@ -34,6 +36,7 @@
     the inputted service tag, and uses that to talk to GLPI's API.
 -->
 <script>
+
     const getConnection = document.querySelector("#get_Connection");
     const killSession = document.querySelector("#kill_Connection");
     const tagLookup = document.querySelector("#search_By_Tag");
@@ -60,6 +63,7 @@
                 success: function(data){
                     document.getElementById("successMessage").innerHTML = "Entry granted"
                     console.log("session started")
+                    document.getElementById("infoTable").innerHTML = "<tr><th>Serial</th><th>Manufacturer</th><th>Model</th><th>CPU</th><th>Memory</th><th>HDD</th></tr>";
                     resolve(data);
                 } ,
                 error: function(data) {
@@ -71,6 +75,7 @@
         getToken.then((token) => {
             sessionToken = token.session_token;
         })
+        
     };
     // Killing the granted session token
     function killConnection(sessionToken){
@@ -139,6 +144,9 @@
 
     // Information Display Function //
     function displayInfo(data){
+        var table = document.getElementById("infoTable");
+        var row = table.insertRow(-1);
+
 
         // Pre-calling object keys for non-hardcoding purposes as the 
         // ID#s for each of the below is different and cannot be grabbed
@@ -149,9 +157,13 @@
         // Writing all the stuff that there's (probably) only one of
         document.getElementById("infoHeader").innerHTML = "Info"
         document.getElementById("serial").innerHTML = "Serial: " + data.serial;
+        row.insertCell(0).innerHTML = data.serial;
         document.getElementById("manufacturer").innerHTML = "Manufacturer: " + data.manufacturers_id;
+        row.insertCell(1).innerHTML = data.manufacturers_id;
         document.getElementById("model").innerHTML = "Model: " + data.computermodels_id;
+        row.insertCell(2).innerHTML = data.computermodels_id;
         document.getElementById("cpu").innerHTML = "CPU: " + data._devices["Item_DeviceProcessor"][cpuKey]["deviceprocessors_id"];
+        row.insertCell(3).innerHTML = data._devices["Item_DeviceProcessor"][cpuKey]["deviceprocessors_id"];
 
         // RAM Info Display //
         document.getElementById("memory").innerHTML = ""
@@ -164,31 +176,43 @@
                 memTotal += currentMemSize;
             }
             document.getElementById("memory").innerHTML += "Total memory: " + memTotal + "mb";
+            row.insertCell(4).innerHTML = memTotal
         }
         else if (memKey.length == 1){
             document.getElementById("memory").innerHTML += 
             "Memory: " + data._devices["Item_DeviceMemory"][memKey]["size"];
+            row.insertCell(4).innerHTML = data._devices["Item_DeviceMemory"][memKey]["size"]
         }
         else {
-            document.getElementById("memory").innerHTML = "No memory found"
+            row.insertCell(4).innerHTML = "N/A"
         }
-
+        
         // HDD Info Display //
-        document.getElementById("drive").innerHTML = ""
-        if(driveKey.length > 1) {
-            for (var i = 0; i < driveKey.length; i++){
-                document.getElementById("drive") += 
-                "Drive" + (i+1) + ": " + data._devices["Item_DeviceHardDrive"][driveKey]["deviceharddrives_id"]
-            }
-        }
-        else if (driveKey.length == 1){
-            document.getElementById("drive").innerHTML += 
-            "Drive: " + data._devices["Item_DeviceHardDrive"][driveKey]["deviceharddrives_id"];
-        }
-        else {
-            document.getElementById("drive").innerHTML = "No drive found"
-        }
+        document.getElementById("drive").innerHTML = data._devices["Item_DeviceHardDrive"][driveKey]["deviceharddrives_id"]
+        row.insertCell(5).innerHTML = data._devices["Item_DeviceHardDrive"][driveKey]["deviceharddrives_id"];
     }
 
-    
+    function writeToCSV(data) {
+        const csvWriter = csv({
+            path: "Inventory.csv",
+            header: [
+                {id: "serial", title: "Serial"},
+                {id: "manufacturer", title: "Manufacturer"},
+                {id: "model", title: "Model"},
+                {id: "cpu", title: "CPU"},
+                {id: "memory", title: "Memory"},
+                {id: "hdd", title: "HDD"},
+            ]
+        });
+        const dataIn = [
+        {
+            "serial":data[0],
+            "manufacturer":data[1],
+            "model":data[2],
+            "cpu":data[3],
+            "memory":data[4],
+            "hdd":data[5]
+        }];
+        csvWriter.writeRecords(data).then(()=> console.log("wrote csv"))
+    }
 </script>
