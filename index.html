@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html>
-    <script src="jquery-3.7.0.min.js"></script>
+    <head>
+        <script src="jquery-3.7.0.min.js"></script>
+        <title>GLPI Info Tool</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
     <body>
         <h1>GLPI info grab (name and UX wip)</h1>
         <label for="sTag">Enter app token (found on GLPI API page):</label><br>
         <form>
             <input type="password" id="userToken" name="userToken" value="">
             <button type="button" id="get_Connection">Submit Token</button>
-            <p id="successMessage"></p><br>
-            <button type="button" id="kill_Connection">Kill Session</button><br><br>
+            <button type="button" id="kill_Connection" class="button button2">Kill Session</button><br><br>
 
             <input type="input" id="searchTerm" name="searchTerm" value="">
             <button type="button" id="search_By_Tag">Search</button>
-            
-
-            
         </form>
+
         <h2 id="infoHeader"></h2>
         <p id="serial"></p>
         <p id="manufacturer"></p>
@@ -23,12 +24,13 @@
         <p id="cpu"></p>
         <p id="memory"></p>
         <p id="drive"></p>
-        <!--Displaying grabbed info-->        
-        <table id="infoTable"></table><br>
-        
+        <!--Displaying grabbed info--> 
+        <div id="tableSection">
+            <table id="infoTable"></table><br>
+        </div>       
+             
     </body>
 </html>
-
 
 <!--Back End stuff-->
 <!--
@@ -61,13 +63,14 @@
                     xhr.setRequestHeader('Authorization', finalHeader);
                 },
                 success: function(data){
-                    document.getElementById("successMessage").innerHTML = "Entry granted"
-                    console.log("session started")
+                    alert("Entry granted.")
+                    console.log("session started");
                     document.getElementById("infoTable").innerHTML = "<tr><th>Serial</th><th>Manufacturer</th><th>Model</th><th>CPU</th><th>Memory</th><th>HDD</th></tr>";
+                    document.getElementById("tableSection").innerHTML += '<button type="button" onclick="saveToCSV()">Export to CSV</button>'
                     resolve(data);
                 } ,
                 error: function(data) {
-                    document.getElementById("successMessage").innerHTML = "Incorrect API token"
+                    alert("Error occurred. Check the API key or blame Ryan for bad coding.")
                     console.log("error occurred")
                 }
             })
@@ -92,6 +95,7 @@
             success: function(data){
                 var json = data;
                 console.log("Session killed")
+                alert("Session killed. Resubmit API token to regain access.")
             }
         });
     }
@@ -100,7 +104,7 @@
     function searchByTag(sessionToken){
         searchTerm = document.getElementById("searchTerm").value;
         if (searchTerm == "" || searchTerm == null) {
-            alert("enter a search term")
+            alert("Enter a search term or blame Ryan for bad coding.")
         }
         else {
         $.ajax({
@@ -192,27 +196,62 @@
         row.insertCell(5).innerHTML = data._devices["Item_DeviceHardDrive"][driveKey]["deviceharddrives_id"];
     }
 
-    function writeToCSV(data) {
-        const csvWriter = csv({
-            path: "Inventory.csv",
-            header: [
-                {id: "serial", title: "Serial"},
-                {id: "manufacturer", title: "Manufacturer"},
-                {id: "model", title: "Model"},
-                {id: "cpu", title: "CPU"},
-                {id: "memory", title: "Memory"},
-                {id: "hdd", title: "HDD"},
-            ]
+    function saveToCSV() {
+
+        // Variable to store the final csv data
+        var csv_data = [];
+
+        // Get each row data
+        var rows = document.getElementsByTagName('tr');
+        for (var i = 0; i < rows.length; i++) {
+
+            // Get each column data
+            var cols = rows[i].querySelectorAll('td,th');
+
+            // Stores each csv row data
+            var csvrow = [];
+            for (var j = 0; j < cols.length; j++) {
+
+                // Get the text data of each cell
+                // of a row and push it to csvrow
+                csvrow.push(cols[j].innerHTML);
+            }
+
+            // Combine each column value with comma
+            csv_data.push(csvrow.join(","));
+        }
+
+        // Combine each row data with new line character
+        csv_data = csv_data.join('\n');
+
+        // Call this function to download csv file 
+        downloadCSVFile(csv_data);
+
+    }
+
+    function downloadCSVFile(csv_data) {
+
+        // Create CSV file object and feed
+        // our csv_data into it
+        CSVFile = new Blob([csv_data], {
+            type: "text/csv"
         });
-        const dataIn = [
-        {
-            "serial":data[0],
-            "manufacturer":data[1],
-            "model":data[2],
-            "cpu":data[3],
-            "memory":data[4],
-            "hdd":data[5]
-        }];
-        csvWriter.writeRecords(data).then(()=> console.log("wrote csv"))
+
+        // Create to temporary link to initiate
+        // download process
+        var temp_link = document.createElement('a');
+
+        // Download csv file
+        temp_link.download = "newData.csv";
+        var url = window.URL.createObjectURL(CSVFile);
+        temp_link.href = url;
+
+        temp_link.style.display = "none";
+        document.body.appendChild(temp_link);
+
+        // Automatically click the link to
+        // trigger download
+        temp_link.click();
+        document.body.removeChild(temp_link);
     }
 </script>
