@@ -2,20 +2,22 @@
 <html>
     <script src="jquery-3.7.0.min.js"></script>
     <body>
-        <h1>GLPI info grab (name and UI wip)</h1>
+        <h1>GLPI info grab (name and UX wip)</h1>
         <label for="sTag">Enter app token (found on GLPI API page):</label><br>
         <form>
             <input type="password" id="userToken" name="userToken" value="">
-            <p id="successMessage"></p>
-            <button type="button" id="get_Connection">Submit Token</button><br>
-            <button type="button" id="get_Info">Get Info</button>
+            <button type="button" id="get_Connection">Submit Token</button>
+            <p id="successMessage"></p><br>
             <button type="button" id="kill_Connection">Kill Session</button><br><br>
+
+            <input type="input" id="searchTerm" name="searchTerm" value="">
             <button type="button" id="search_By_Tag">Search</button>
+            
 
             
         </form>
         <!--Displaying grabbed info-->
-        <h2>Info Display</h2><br>
+        <h2 id="infoHeader"></h2><br>
         <p id="serial"></p>
         <p id="manufacturer"></p>
         <p id="model"></p>
@@ -33,13 +35,11 @@
 -->
 <script>
     const getConnection = document.querySelector("#get_Connection");
-    const getSpecs = document.querySelector("#get_Info");
     const killSession = document.querySelector("#kill_Connection");
     const tagLookup = document.querySelector("#search_By_Tag");
 
     var sessionToken
     getConnection.onclick = () => {establishConnection()};
-    getSpecs.onclick = () => {getInfo(sessionToken)};
     killSession.onclick = () => {killConnection(sessionToken)};
     tagLookup.onclick = () => {searchByTag(sessionToken)};
 
@@ -69,12 +69,12 @@
             })
         })
         getToken.then((token) => {
-            console.log("token: " + token.session_token)
             sessionToken = token.session_token;
         })
     };
     // Killing the granted session token
     function killConnection(sessionToken){
+        console.log("session killed")
         $.ajax({
             type: 'GET',
             url: "https://glpi.bdli.local/glpi/apirest.php/killSession",
@@ -91,11 +91,38 @@
         });
     }
 
-    // Grabbing the info for the chosen system via API endpoint
-    function getInfo(sessionToken){
+    // Searching GLPI database for laptop based on serial ID
+    function searchByTag(sessionToken){
+        searchTerm = document.getElementById("searchTerm").value;
+        if (searchTerm == "" || searchTerm == null) {
+            alert("enter a search term")
+        }
+        else {
         $.ajax({
             type: 'GET',
-            url: "https://glpi.bdli.local/glpi/apirest.php/Computer/864?expand_dropdowns=true&with_devices=true",
+            url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2',
+            data: {},
+            crossDomain: true,
+            
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('Session-Token', sessionToken )
+                xhr.setRequestHeader('Authorization', document.getElementById("userToken").value)
+            },
+            success: function(data){
+                var json = data;
+                console.log("id: " + json.data[0]["2"]);
+                getInfo(sessionToken, json.data[0]["2"]);
+            }
+        });
+        }
+    }
+
+    // Grabbing the info for the chosen system via API endpoint
+    function getInfo(sessionToken, itemID){
+        itemID = itemID.toString(10);
+        $.ajax({
+            type: 'GET',
+            url: "https://glpi.bdli.local/glpi/apirest.php/Computer/" + itemID + "?expand_dropdowns=true&with_devices=true",
             data: {},
             crossDomain: true,
             
@@ -109,6 +136,7 @@
             }
         });
     }
+
     // Information Display Function //
     function displayInfo(data){
 
@@ -119,12 +147,14 @@
         let cpuKey = Object.keys(data._devices['Item_DeviceProcessor']);
 
         // Writing all the stuff that there's (probably) only one of
+        document.getElementById("infoHeader").innerHTML = "Info"
         document.getElementById("serial").innerHTML = "Serial: " + data.serial;
         document.getElementById("manufacturer").innerHTML = "Manufacturer: " + data.manufacturers_id;
         document.getElementById("model").innerHTML = "Model: " + data.computermodels_id;
         document.getElementById("cpu").innerHTML = "CPU: " + data._devices["Item_DeviceProcessor"][cpuKey]["deviceprocessors_id"];
 
         // RAM Info Display //
+        document.getElementById("memory").innerHTML = ""
         if(memKey.length > 1) {
             let memTotal = 0;
             for (var i = 0; i < memKey.length; i++){
@@ -144,6 +174,7 @@
         }
 
         // HDD Info Display //
+        document.getElementById("drive").innerHTML = ""
         if(driveKey.length > 1) {
             for (var i = 0; i < driveKey.length; i++){
                 document.getElementById("drive") += 
@@ -159,25 +190,5 @@
         }
     }
 
-    // Searching GLPI database for laptop based on serial ID
-    function searchByTag(sessionToken){
-        $.ajax({
-            type: 'GET',
-            url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=view&criteria[0][searchtype]=contains&criteria[0][value]=g7qpf13&search=Search&itemtype=Computer',
-            //url: 'https://glpi.bdli.local/glpi/apirest.php/listSearchOptions/Computer',
-            data: {},
-            crossDomain: true,
-            
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader('Session-Token', sessionToken )
-                xhr.setRequestHeader('Authorization', document.getElementById("userToken").value)
-
-                
-            },
-            success: function(data){
-                var json = data;
-                displayInfo(data)
-            }
-        });
-    }
+    
 </script>
