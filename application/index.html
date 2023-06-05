@@ -19,18 +19,20 @@
                 <input id="searchTerm" type ="input" name="searchTerm" value="" placeholder="Service Tag">
                 <button type="button" id="search_By_Tag">Search</button>
             </form>
-
-            <h4 id="infoHeader"></h4>
-            <p id="serial"></p>
-            <p id="manufacturer"></p>
-            <p id="model"></p>
-            <p id="cpu"></p>
-            <p id="memory"></p>
-            <p id="drive"></p>
-            <!--Displaying grabbed info--> 
-            <div id="tableSection">
-                <table id="infoTable"></table><br>
-            </div>          
+            <div id="infoSection">
+                <h4 id="infoHeader">Device Info</h4>
+                <p id="serial">Serial:</p>
+                <p id="manufacturer">Manufacturer:</p>
+                <p id="model">Model:</p>
+                <p id="cpu">CPU:</p>
+                <p id="memory">Memory:</p>
+                <p id="drive">HDD:</p>
+                <!--Displaying grabbed info--> 
+                <div id="tableSection">
+                    <table id="infoTable"></table><br>
+                </div>   
+            </div>
+                   
         </div>  
     </body>
 </html>
@@ -41,7 +43,7 @@
     the inputted service tag, and uses that to talk to GLPI's API.
 -->
 <script>
-
+    document.getElementById("infoSection").style.display = "none";
     const getConnection = document.querySelector("#get_Connection");
     const killSession = document.querySelector("#kill_Connection");
     const tagLookup = document.querySelector("#search_By_Tag");
@@ -72,9 +74,9 @@
                     prompt.innerHTML = "Entry granted.";
                     prompt.style.color = "#3F9C5F";
                     
-                    document.getElementById("infoTable").innerHTML = "<tr><th>Serial</th><th>Manufacturer</th><th>Model</th><th>CPU</th><th>Memory</th><th>HDD</th></tr>";
+                    document.getElementById("infoTable").innerHTML = "<tr><th>Serial</th><th>Manufacturer</th><th>Model</th><th>CPU</th><th>Memory</th><th>Drive</th></tr>";
                     document.getElementById("tableSection").innerHTML += '<button type="button" onclick="saveToCSV()" id="exportButton">Export to CSV</button>';
-                    //
+                    document.getElementById("infoSection").style.display = "block";
                     resolve(data);
                 } ,
                 error: function(data) {
@@ -107,6 +109,7 @@
                 console.log("Session killed successfully")
                 prompt.innerHTML = "Session killed. Reenter API Token for access.";
                 prompt.style.color = "#3F9C5F";
+                document.getElementById("infoSection").style.display = "none";
             },
             error: function(){
                 console.log("Session kill failed")
@@ -122,7 +125,9 @@
         if (searchTerm == "" || searchTerm == null) {
             alert("Enter a search term or blame Ryan for bad coding.")
         }
+        
         else {
+        console.log("Attempting search by tag")
         $.ajax({
             type: 'GET',
             url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2',
@@ -135,7 +140,13 @@
             },
             success: function(data){
                 var json = data;
-                getInfo(sessionToken, json.data[0]["2"]);
+                console.log("Search successful")
+                if (json.data === undefined) {
+                    alert("Could not get device info.")
+                }
+                else {
+                    getInfo(sessionToken, json.data[0]["2"]);
+                }
             }
         });
         }
@@ -181,7 +192,6 @@
         let cpuKey = Object.keys(data._devices['Item_DeviceProcessor']);
 
         // Writing all the stuff that there's (probably) only one of
-        document.getElementById("infoHeader").innerHTML = "Info"
         document.getElementById("serial").innerHTML = "Serial: " + data.serial;
         row.insertCell(0).innerHTML = data.serial;
         document.getElementById("manufacturer").innerHTML = "Manufacturer: " + data.manufacturers_id;
