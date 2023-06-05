@@ -2,8 +2,10 @@ table, th, td {
     border: 1px solid black;
 }
 
-h1, h2 {
+h3, h4, p {
+
     font-family: 'Bitstream Vera Sans', Verdana, Tahoma, 'Sans serif';
+
 }
 
 .button {
@@ -22,3 +24,7 @@ h1, h2 {
 .button2 {
     background-color: #f44336;
   }
+
+.content {
+  font-family: 'Bitstream Vera Sans', Verdana, Tahoma, 'Sans serif';
+}

@@ -1,34 +1,37 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script src="jquery-3.7.0.min.js"></script>
-        <title>GLPI Info Tool</title>
-        <link rel="stylesheet" href="style.css">
+        <script src="./modules/jquery-3.7.0.min.js"></script>
+        <title>GLPI Spec Tool</title>
+        <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
+        <link rel="stylesheet" href="./modules/style.css">
     </head>
     <body>
-        <h1>GLPI info grab (name and UX wip)</h1>
-        <label for="sTag">Enter app token (found on GLPI API page):</label><br>
-        <form>
-            <input type="password" id="userToken" name="userToken" value="">
-            <button type="button" id="get_Connection">Submit Token</button>
-            <button type="button" id="kill_Connection" class="button button2">Kill Session</button><br><br>
+        <div class="content">
+            <h3>GLPI Spec Tool (name and UX wip)</h3>
+            <label for="sTag">Enter API token (found on GLPI user page):</label><br>
+            <form id="inputForm">
+                <input type="password" id="userToken" name="userToken" value="" placeholder="API Token"><br>
+                <button type="button" id="get_Connection" class = "button">Submit Token</button>
+                <button type="button" id="kill_Connection" class="button button2">Kill Session</button><br>
+                <p id="successOrFailPrompt"></p><br>
+                <label>Enter the service tag of the device.</label><br>
+                <input id="searchTerm" type ="input" name="searchTerm" value="" placeholder="Service Tag">
+                <button type="button" id="search_By_Tag">Search</button>
+            </form>
 
-            <input type="input" id="searchTerm" name="searchTerm" value="">
-            <button type="button" id="search_By_Tag">Search</button>
-        </form>
-
-        <h2 id="infoHeader"></h2>
-        <p id="serial"></p>
-        <p id="manufacturer"></p>
-        <p id="model"></p>
-        <p id="cpu"></p>
-        <p id="memory"></p>
-        <p id="drive"></p>
-        <!--Displaying grabbed info--> 
-        <div id="tableSection">
-            <table id="infoTable"></table><br>
-        </div>       
-             
+            <h4 id="infoHeader"></h4>
+            <p id="serial"></p>
+            <p id="manufacturer"></p>
+            <p id="model"></p>
+            <p id="cpu"></p>
+            <p id="memory"></p>
+            <p id="drive"></p>
+            <!--Displaying grabbed info--> 
+            <div id="tableSection">
+                <table id="infoTable"></table><br>
+            </div>          
+        </div>  
     </body>
 </html>
 
@@ -50,9 +53,11 @@
 
 
     function establishConnection() {
+        console.log("Attempting connection...")
         const getToken = new Promise(function(resolve, reject) {
             let userToken = document.getElementById("userToken").value;
             let finalHeader = "user_token ".concat(userToken);
+            const prompt = document.getElementById("successOrFailPrompt");
             $.ajax({
                 type: 'GET',
                 url: "https://glpi.bdli.local/glpi/apirest.php/initSession",
@@ -63,15 +68,19 @@
                     xhr.setRequestHeader('Authorization', finalHeader);
                 },
                 success: function(data){
-                    alert("Entry granted.")
-                    console.log("session started");
+                    console.log("Connection successful");
+                    prompt.innerHTML = "Entry granted.";
+                    prompt.style.color = "#3F9C5F";
+                    
                     document.getElementById("infoTable").innerHTML = "<tr><th>Serial</th><th>Manufacturer</th><th>Model</th><th>CPU</th><th>Memory</th><th>HDD</th></tr>";
-                    document.getElementById("tableSection").innerHTML += '<button type="button" onclick="saveToCSV()">Export to CSV</button>'
+                    document.getElementById("tableSection").innerHTML += '<button type="button" onclick="saveToCSV()" id="exportButton">Export to CSV</button>';
+                    //
                     resolve(data);
                 } ,
                 error: function(data) {
-                    alert("Error occurred. Check the API key or blame Ryan for bad coding.")
-                    console.log("error occurred")
+                    prompt.innerHTML = "Error occurred. Check the API key or blame Ryan for bad coding."
+                    prompt.style.color = "#CC0000"
+                    console.log("Error occurred")
                 }
             })
         })
@@ -82,20 +91,27 @@
     };
     // Killing the granted session token
     function killConnection(sessionToken){
-        console.log("session killed")
+        prompt = document.getElementById("successOrFailPrompt");
+        console.log("Attempting session kill...")
         $.ajax({
             type: 'GET',
             url: "https://glpi.bdli.local/glpi/apirest.php/killSession",
             data: {},
+            dataType: 'text',
             crossDomain: true,
             
             beforeSend: function(xhr) {
-                xhr.setRequestHeader('Session-Token', sessionToken )
+                xhr.setRequestHeader('Session-Token', sessionToken );
             },
             success: function(data){
-                var json = data;
-                console.log("Session killed")
-                alert("Session killed. Resubmit API token to regain access.")
+                console.log("Session killed successfully")
+                prompt.innerHTML = "Session killed. Reenter API Token for access.";
+                prompt.style.color = "#3F9C5F";
+            },
+            error: function(){
+                console.log("Session kill failed")
+                prompt.innerHTML = "Could not kill session.";
+                prompt.style.color = "#CC0000"
             }
         });
     }
@@ -119,7 +135,6 @@
             },
             success: function(data){
                 var json = data;
-                console.log("id: " + json.data[0]["2"]);
                 getInfo(sessionToken, json.data[0]["2"]);
             }
         });
@@ -128,6 +143,7 @@
 
     // Grabbing the info for the chosen system via API endpoint
     function getInfo(sessionToken, itemID){
+        console.log("Attempting info grab...");
         itemID = itemID.toString(10);
         $.ajax({
             type: 'GET',
@@ -141,7 +157,13 @@
             },
             success: function(data){
                 var json = data;
-                displayInfo(data)
+                console.log("Info grab successful")
+                if (json.count == 0){
+                    alert("No device found.")
+                }
+                else {
+                    displayInfo(data)
+                }
             }
         });
     }
@@ -242,7 +264,10 @@
         var temp_link = document.createElement('a');
 
         // Download csv file
-        temp_link.download = "newData.csv";
+        let fileName = Date().slice(0, 24) + ".csv"
+        fileName[22] = "-"
+        fileName[19] = "-"
+        temp_link.download = fileName;
         var url = window.URL.createObjectURL(CSVFile);
         temp_link.href = url;
 
@@ -254,4 +279,5 @@
         temp_link.click();
         document.body.removeChild(temp_link);
     }
+
 </script>
