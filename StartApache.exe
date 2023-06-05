@@ -1,4 +1,0 @@
-@echo OFF
-cd "C:\Apache24\bin"
-echo "Apache started."
-httpd
