@@ -27,12 +27,11 @@
                 <p id="cpu">CPU:</p>
                 <p id="memory">Memory:</p>
                 <p id="drive">HDD:</p>
-                <!--Displaying grabbed info--> 
+                <!--Displaying grabbed info here--> 
                 <div id="tableSection">
                     <table id="infoTable"></table><br>
                 </div>   
             </div>
-                   
         </div>  
     </body>
 </html>
@@ -48,13 +47,14 @@
     const killSession = document.querySelector("#kill_Connection");
     const tagLookup = document.querySelector("#search_By_Tag");
 
-    var sessionToken
+    var sessionToken;
+    var deviceCount = 1;
     getConnection.onclick = () => {establishConnection()};
     killSession.onclick = () => {killConnection(sessionToken)};
     tagLookup.onclick = () => {searchByTag(sessionToken)};
 
-
     function establishConnection() {
+        deviceCount = 1;
         console.log("Attempting connection...")
         const getToken = new Promise(function(resolve, reject) {
             let userToken = document.getElementById("userToken").value;
@@ -74,7 +74,7 @@
                     prompt.innerHTML = "Entry granted.";
                     prompt.style.color = "#3F9C5F";
                     
-                    document.getElementById("infoTable").innerHTML = "<tr><th>Serial</th><th>Manufacturer</th><th>Model</th><th>CPU</th><th>Memory</th><th>Drive</th></tr>";
+                    document.getElementById("infoTable").innerHTML = "<tr><th>Serial</th><th>Manufacturer</th><th>Model</th><th>CPU</th><th>Memory</th><th>Drive</th><th>Screen Size</th><th>Notes</th></tr>";
                     document.getElementById("tableSection").innerHTML += '<button type="button" onclick="saveToCSV()" id="exportButton">Export to CSV</button>';
                     document.getElementById("infoSection").style.display = "block";
                     resolve(data);
@@ -125,30 +125,29 @@
         if (searchTerm == "" || searchTerm == null) {
             alert("Enter a search term or blame Ryan for bad coding.")
         }
-        
         else {
-        console.log("Attempting search by tag")
-        $.ajax({
-            type: 'GET',
-            url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2',
-            data: {},
-            crossDomain: true,
-            
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader('Session-Token', sessionToken )
-                xhr.setRequestHeader('Authorization', document.getElementById("userToken").value)
-            },
-            success: function(data){
-                var json = data;
-                console.log("Search successful")
-                if (json.data === undefined) {
-                    alert("Could not get device info.")
+            console.log("Attempting search by tag")
+            $.ajax({
+                type: 'GET',
+                url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2',
+                data: {},
+                crossDomain: true,
+                
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('Session-Token', sessionToken )
+                    xhr.setRequestHeader('Authorization', document.getElementById("userToken").value)
+                },
+                success: function(data){
+                    var json = data;
+                    console.log("Search successful")
+                    if (json.data === undefined) {
+                        alert("Could not get device info.")
+                    }
+                    else {
+                        getInfo(sessionToken, json.data[0]["2"]);
+                    }
                 }
-                else {
-                    getInfo(sessionToken, json.data[0]["2"]);
-                }
-            }
-        });
+            });
         }
     }
 
@@ -224,12 +223,16 @@
         }
         
         // HDD Info Display //
-        document.getElementById("drive").innerHTML = data._devices["Item_DeviceHardDrive"][driveKey]["deviceharddrives_id"]
+        document.getElementById("drive").innerHTML = data._devices["Item_DeviceHardDrive"][driveKey]["deviceharddrives_id"];
         row.insertCell(5).innerHTML = data._devices["Item_DeviceHardDrive"][driveKey]["deviceharddrives_id"];
+        row.insertCell(6).innerHTML = '<input type="text" id = "ssize' + deviceCount + '"/>';
+        row.insertCell(7).innerHTML = '<input type="text" id="notes' + deviceCount + '"/>';
+        console.log("notes" + deviceCount + " created")
+        deviceCount ++;
     }
 
     function saveToCSV() {
-
+        var savedNum = 0
         // Variable to store the final csv data
         var csv_data = [];
 
@@ -246,11 +249,34 @@
 
                 // Get the text data of each cell
                 // of a row and push it to csvrow
-                csvrow.push(cols[j].innerHTML);
+                if (j==6) {
+                    if (i==0){
+                        csvrow.push("Screen Size");
+                    }
+                    else {
+                        csvrow.push(document.getElementById("ssize" + (i)).value);
+                    }
+                }
+                else if (j==7) {
+                    if (i==0) {
+                        csvrow.push("Notes");
+                        console.log("pushed header")
+                    }
+                    else {
+                        console.log("attempting push of notes" + (i) + " with value " + document.getElementById("notes" + savedNum).value)
+                        csvrow.push(document.getElementById("notes" + (i)).value);
+                    }
+                    
+                }
+                else {
+                    csvrow.push(cols[j].innerHTML);
+                }
+                
             }
 
             // Combine each column value with comma
             csv_data.push(csvrow.join(","));
+            savedNum ++;
         }
 
         // Combine each row data with new line character
