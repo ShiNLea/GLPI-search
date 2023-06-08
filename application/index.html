@@ -8,7 +8,7 @@
     </head>
     <body>
         <div class="content">
-            <h3>GLPI Spec Tool (name and UX wip)</h3>
+            <h2>GLPI Spec Tool (name and UX wip)</h2>
             <label for="sTag">Enter API token (found on GLPI user page):</label><br>
             <form id="inputForm">
                 <input type="password" id="userToken" name="userToken" value="" placeholder="API Token"><br>
@@ -20,16 +20,18 @@
                 <button type="button" id="search_By_Tag">Search</button>
             </form>
             <div id="infoSection">
-                <h4 id="infoHeader">Device Info</h4>
-                <p id="serial">Serial:</p>
-                <p id="manufacturer">Manufacturer:</p>
-                <p id="model">Model:</p>
-                <p id="cpu">CPU:</p>
-                <p id="memory">Memory:</p>
-                <p id="drive">HDD:</p>
+                <h3 id="infoHeader">Device Info</h3>
+                <h5 id="serial">Serial:</h5>
+                <h5 id="manufacturer">Manufacturer:</h5>
+                <h5 id="model">Model:</h5>
+                <h5 id="cpu">CPU:</h5>
+                <h5 id="memory">Memory:</h5>
+                <h5 id="drive">HDD:</h5>
                 <!--Displaying grabbed info here--> 
                 <div id="tableSection">
-                    <table id="infoTable"></table><br>
+                    <table id="infoTable">
+                        <div id="buttonSection"></div>
+                    </table><br>
                 </div>   
             </div>
         </div>  
@@ -75,7 +77,7 @@
                     prompt.style.color = "#3F9C5F";
                     
                     document.getElementById("infoTable").innerHTML = "<tr><th>Serial</th><th>Manufacturer</th><th>Model</th><th>CPU</th><th>Memory</th><th>Drive</th><th>Screen Size</th><th>Notes</th></tr>";
-                    document.getElementById("tableSection").innerHTML += '<button type="button" onclick="saveToCSV()" id="exportButton">Export to CSV</button>';
+                    document.getElementById("buttonSection").innerHTML = '<button type="button" onclick="saveToCSV()" id="exportButton">Export to CSV</button>';
                     document.getElementById("infoSection").style.display = "block";
                     resolve(data);
                 } ,
@@ -126,24 +128,24 @@
             alert("Enter a search term or blame Ryan for bad coding.")
         }
         else {
-            console.log("Attempting search by tag")
+            console.log("Attempting search by serial " + searchTerm)
             $.ajax({
                 type: 'GET',
                 url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2',
                 data: {},
                 crossDomain: true,
-                
                 beforeSend: function(xhr) {
                     xhr.setRequestHeader('Session-Token', sessionToken )
                     xhr.setRequestHeader('Authorization', document.getElementById("userToken").value)
                 },
                 success: function(data){
                     var json = data;
-                    console.log("Search successful")
                     if (json.data === undefined) {
+                        console.log("Search unsuccessful")
                         alert("Could not get device info.")
                     }
                     else {
+                        console.log("Search successful")
                         getInfo(sessionToken, json.data[0]["2"]);
                     }
                 }
@@ -153,7 +155,7 @@
 
     // Grabbing the info for the chosen system via API endpoint
     function getInfo(sessionToken, itemID){
-        console.log("Attempting info grab...");
+        console.log("Attempting info grab by ID " + itemID);
         itemID = itemID.toString(10);
         $.ajax({
             type: 'GET',
@@ -183,13 +185,6 @@
         var table = document.getElementById("infoTable");
         var row = table.insertRow(-1);
 
-
-        // Pre-calling object keys for non-hardcoding purposes as the 
-        // ID#s for each of the below is different and cannot be grabbed
-        let driveKey = Object.keys(data._devices['Item_DeviceHardDrive']);
-        let memKey = Object.keys(data._devices['Item_DeviceMemory']);
-        let cpuKey = Object.keys(data._devices['Item_DeviceProcessor']);
-
         // Writing all the stuff that there's (probably) only one of
         document.getElementById("serial").innerHTML = "Serial: " + data.serial;
         row.insertCell(0).innerHTML = data.serial;
@@ -197,40 +192,74 @@
         row.insertCell(1).innerHTML = data.manufacturers_id;
         document.getElementById("model").innerHTML = "Model: " + data.computermodels_id;
         row.insertCell(2).innerHTML = data.computermodels_id;
-        document.getElementById("cpu").innerHTML = "CPU: " + data._devices["Item_DeviceProcessor"][cpuKey]["deviceprocessors_id"];
-        row.insertCell(3).innerHTML = data._devices["Item_DeviceProcessor"][cpuKey]["deviceprocessors_id"];
-
+        
+        try {
+            let cpuKey = Object.keys(data._devices['Item_DeviceProcessor']);
+            document.getElementById("cpu").innerHTML = "CPU: " + data._devices["Item_DeviceProcessor"][cpuKey]["deviceprocessors_id"];
+            row.insertCell(3).innerHTML = data._devices["Item_DeviceProcessor"][cpuKey]["deviceprocessors_id"];
+        }
+        
+        catch {
+            document.getElementById("cpu").innerHTML = "CPU: No CPU found";
+            row.insertCell(3).innerHTML = "No CPU found";
+        }
         // RAM Info Display //
-        document.getElementById("memory").innerHTML = ""
-        if(memKey.length > 1) {
-            let memTotal = 0;
-            for (var i = 0; i < memKey.length; i++){
-                var currentMemSize = data._devices["Item_DeviceMemory"][memKey[i]]["size"];
-                document.getElementById("memory").innerHTML += 
-                "Memory " + (i+1) + ": " + currentMemSize + "mb<br>";
-                memTotal += currentMemSize;
+        try {
+            let memKey = Object.keys(data._devices['Item_DeviceMemory']);
+            document.getElementById("memory").innerHTML = ""
+            if(memKey.length > 1) {
+                let memTotal = 0;
+                for (var i = 0; i < memKey.length; i++){
+                    var currentMemSize = data._devices["Item_DeviceMemory"][memKey[i]]["size"];
+                    document.getElementById("memory").innerHTML += 
+                    "Memory " + (i+1) + ": " + currentMemSize + "mb<br>";
+                    memTotal += currentMemSize;
+                }
+                document.getElementById("memory").innerHTML += "Total memory: " + memTotal + "mb";
+                row.insertCell(4).innerHTML = memTotal
             }
-            document.getElementById("memory").innerHTML += "Total memory: " + memTotal + "mb";
-            row.insertCell(4).innerHTML = memTotal
+            else {
+                document.getElementById("memory").innerHTML += 
+                "Memory: " + data._devices["Item_DeviceMemory"][memKey]["size"];
+                row.insertCell(4).innerHTML = data._devices["Item_DeviceMemory"][memKey]["size"]
+            }
         }
-        else if (memKey.length == 1){
-            document.getElementById("memory").innerHTML += 
-            "Memory: " + data._devices["Item_DeviceMemory"][memKey]["size"];
-            row.insertCell(4).innerHTML = data._devices["Item_DeviceMemory"][memKey]["size"]
-        }
-        else {
-            row.insertCell(4).innerHTML = "N/A"
+        catch {
+            document.getElementById("memory").innerHTML = "No memory found"
+            row.insertCell(4).innerHTML = "No memory found";
         }
         
         // HDD Info Display //
-        document.getElementById("drive").innerHTML = data._devices["Item_DeviceHardDrive"][driveKey]["deviceharddrives_id"];
-        row.insertCell(5).innerHTML = data._devices["Item_DeviceHardDrive"][driveKey]["deviceharddrives_id"];
-        row.insertCell(6).innerHTML = '<input type="text" id = "ssize' + deviceCount + '"/>';
-        row.insertCell(7).innerHTML = '<input type="text" id="notes' + deviceCount + '"/>';
-        console.log("notes" + deviceCount + " created")
+        {
+            try {
+                driveKey = Object.keys(data._devices["Item_DeviceHardDrive"]);
+                if (driveKey.length == 1) {
+                    document.getElementById("drive").innerHTML = driveID[driveKey]["deviceharddrives_id"]
+                    row.insertCell(5).innerHTML = driveID[driveKey]["deviceharddrives_id"];
+                }
+                else {
+                    let driveFinal;
+                    for(let i in driveKey) {
+                        if (i == 0) {
+                            driveFinal = driveID[driveKey[i]]["deviceharddrives_id"];
+                        }
+                        else {
+                            driveFinal += "; " + driveID[driveKey[i]]["deviceharddrives_id"].toString();
+                        }
+                    }
+                    document.getElementById("drive").innerHTML = "HDD: " + driveFinal;
+                    row.insertCell(5).innerHTML = driveFinal;
+                }
+            }
+            catch {
+                document.getElementById("drive").innerHTML = "No drive found";
+                row.insertCell(5).innerHTML = "HDD: No drive found";
+            }   
+        }
+        row.insertCell(6).innerHTML = '<input type="text" id ="ssize' + deviceCount + '"/>';
+        row.insertCell(7).innerHTML = '<input type="text" id="notes'  + deviceCount + '"/>';
         deviceCount ++;
     }
-
     function saveToCSV() {
         var savedNum = 0
         // Variable to store the final csv data
