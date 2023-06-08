@@ -1,0 +1,151 @@
+Attempting connection... index.html:58:17
+Error occurred index.html:85:29
+Attempting connection... index.html:58:17
+Connection successful index.html:73:29
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+notes1 created index.html:230:17
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+notes2 created index.html:230:17
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+notes3 created index.html:230:17
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+notes4 created index.html:230:17
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+notes5 created index.html:230:17
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+notes6 created index.html:230:17
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+notes7 created index.html:230:17
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+Uncaught TypeError: can't convert undefined to object
+    displayInfo file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:189
+    success file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:175
+    jQuery 4
+index.html:189:31
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+Uncaught TypeError: can't convert undefined to object
+    displayInfo file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:189
+    success file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:175
+    jQuery 4
+index.html:189:31
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+Uncaught TypeError: can't convert undefined to object
+    displayInfo file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:189
+    success file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:175
+    jQuery 6
+    getInfo file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:158
+    success file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:147
+    jQuery 6
+    searchByTag file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:130
+    onclick file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:54
+index.html:189:31
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+notes8 created index.html:230:17
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+notes9 created index.html:230:17
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+notes10 created index.html:230:17
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+notes11 created index.html:230:17
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+notes12 created index.html:230:17
+Attempting search by tag index.html:129:21
+Search successful index.html:142:29
+Attempting info grab... index.html:156:17
+Info grab successful index.html:170:25
+Uncaught TypeError: data._devices.Item_DeviceHardDrive[driveKey] is undefined
+    displayInfo file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:226
+    success file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:175
+    jQuery 4
+index.html:226:18
+pushed header index.html:263:33
+attempting push of notes1 with value No battery; bad trackpad index.html:266:33
+attempting push of notes2 with value Bad battery; random shutdowns; no esc key index.html:266:33
+attempting push of notes3 with value No battery; no hdd index.html:266:33
+attempting push of notes4 with value No battery; USB-C cosmetic damage index.html:266:33
+attempting push of notes5 with value Needs cleaning and check index.html:266:33
+attempting push of notes6 with value No battery; bad screen index.html:266:33
+attempting push of notes7 with value No battery; bad hdd index.html:266:33
+attempting push of notes11 with value No battery; ALIAS VMNB0131 index.html:266:33
+attempting push of notes12 with value No battery; no j key or joystick; no trackpad buttons index.html:266:33
+Uncaught TypeError: document.getElementById(...) is null
+    saveToCSV file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:257
+    onclick file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:1
+index.html:257:46
+pushed header index.html:263:33
+attempting push of notes1 with value No battery; bad trackpad index.html:266:33
+attempting push of notes2 with value Bad battery; random shutdowns; no esc key index.html:266:33
+attempting push of notes3 with value No battery; no hdd index.html:266:33
+attempting push of notes4 with value No battery; USB-C cosmetic damage index.html:266:33
+attempting push of notes5 with value Needs cleaning and check index.html:266:33
+attempting push of notes6 with value No battery; bad screen index.html:266:33
+attempting push of notes7 with value No battery; bad hdd index.html:266:33
+attempting push of notes11 with value No battery; ALIAS VMNB0131 index.html:266:33
+attempting push of notes12 with value No battery; no j key or joystick; no trackpad buttons index.html:266:33
+Uncaught TypeError: document.getElementById(...) is null
+    saveToCSV file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:257
+    onclick file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:1
+index.html:257:46
+pushed header index.html:263:33
+attempting push of notes1 with value No battery; bad trackpad index.html:266:33
+attempting push of notes2 with value Bad battery; random shutdowns; no esc key index.html:266:33
+attempting push of notes3 with value No battery; no hdd index.html:266:33
+attempting push of notes4 with value No battery; USB-C cosmetic damage index.html:266:33
+attempting push of notes5 with value Needs cleaning and check index.html:266:33
+attempting push of notes6 with value No battery; bad screen index.html:266:33
+attempting push of notes7 with value No battery; bad hdd index.html:266:33
+attempting push of notes11 with value No battery; ALIAS VMNB0131 index.html:266:33
+attempting push of notes12 with value No battery; no j key or joystick; no trackpad buttons index.html:266:33
+Uncaught TypeError: document.getElementById(...) is null
+    saveToCSV file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:257
+    onclick file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:1
+index.html:257:46
+    saveToCSV file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:257
+    onclick file:///C:/Users/rlo/OneDrive - Black Diamond Group Limited/Main Projects/GLPI-search/application/index.html:1
