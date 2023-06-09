@@ -232,12 +232,14 @@
         // HDD Info Display //
         {
             try {
-                driveKey = Object.keys(data._devices["Item_DeviceHardDrive"]);
+                const driveID = data._devices["Item_DeviceHardDrive"];
+                driveKey = Object.keys(driveID);
                 if (driveKey.length == 1) {
                     document.getElementById("drive").innerHTML = driveID[driveKey]["deviceharddrives_id"]
                     row.insertCell(5).innerHTML = driveID[driveKey]["deviceharddrives_id"];
                 }
                 else {
+                    console.log("More than 1 drive detected")
                     let driveFinal;
                     for(let i in driveKey) {
                         if (i == 0) {
@@ -247,13 +249,15 @@
                             driveFinal += "; " + driveID[driveKey[i]]["deviceharddrives_id"].toString();
                         }
                     }
+                    console.log("scraped drives " + driveFinal)
                     document.getElementById("drive").innerHTML = "HDD: " + driveFinal;
                     row.insertCell(5).innerHTML = driveFinal;
                 }
             }
-            catch {
+            catch (err) {
+                console.log(err)
                 document.getElementById("drive").innerHTML = "No drive found";
-                row.insertCell(5).innerHTML = "HDD: No drive found";
+                row.insertCell(5).innerHTML = "No drive found";
             }   
         }
         row.insertCell(6).innerHTML = '<input type="text" id ="ssize' + deviceCount + '"/>';
