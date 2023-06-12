@@ -49,12 +49,15 @@
     const killSession = document.querySelector("#kill_Connection");
     const tagLookup = document.querySelector("#search_By_Tag");
 
+    // Declaring sessionToken as global; it's a surprise
+    // tool that'll help us later
     var sessionToken;
     var deviceCount = 1;
     getConnection.onclick = () => {establishConnection()};
     killSession.onclick = () => {killConnection(sessionToken)};
     tagLookup.onclick = () => {searchByTag(sessionToken)};
 
+    // Establishing connection and getting session token //
     function establishConnection() {
         deviceCount = 1;
         console.log("Attempting connection...")
@@ -93,7 +96,7 @@
         })
         
     };
-    // Killing the granted session token
+    // Killing the granted session token //
     function killConnection(sessionToken){
         prompt = document.getElementById("successOrFailPrompt");
         console.log("Attempting session kill...")
@@ -121,14 +124,16 @@
         });
     }
 
-    // Searching GLPI database for laptop based on serial ID
+    // Searching GLPI database for laptop based on serial ID //
     function searchByTag(sessionToken){
         searchTerm = document.getElementById("searchTerm").value;
+
+        // Accounting for blank search field
         if (searchTerm == "" || searchTerm == null) {
             alert("Enter a search term or blame Ryan for bad coding.")
         }
         else {
-            console.log("Attempting search by serial " + searchTerm)
+            console.log("Attempting search by serial " + searchTerm + "...")
             $.ajax({
                 type: 'GET',
                 url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2',
@@ -140,6 +145,7 @@
                 },
                 success: function(data){
                     var json = data;
+                    // Got a response but no data
                     if (json.data === undefined) {
                         console.log("Search unsuccessful")
                         alert("Could not get device info.")
@@ -153,9 +159,9 @@
         }
     }
 
-    // Grabbing the info for the chosen system via API endpoint
+    // Grabbing the ID# for the chosen system via API endpoint //
     function getInfo(sessionToken, itemID){
-        console.log("Attempting info grab by ID " + itemID);
+        console.log("Attempting info grab by ID " + itemID + "...");
         itemID = itemID.toString(10);
         $.ajax({
             type: 'GET',
@@ -170,6 +176,7 @@
             success: function(data){
                 var json = data;
                 console.log("Info grab successful")
+                // No search result
                 if (json.count == 0){
                     alert("No device found.")
                 }
@@ -193,6 +200,8 @@
         document.getElementById("model").innerHTML = "Model: " + data.computermodels_id;
         row.insertCell(2).innerHTML = data.computermodels_id;
         
+        // Error handling for CPUs (because sometimes 
+        // the CPUs aren't detected for some reason)
         try {
             let cpuKey = Object.keys(data._devices['Item_DeviceProcessor']);
             document.getElementById("cpu").innerHTML = "CPU: " + data._devices["Item_DeviceProcessor"][cpuKey]["deviceprocessors_id"];
@@ -203,10 +212,13 @@
             document.getElementById("cpu").innerHTML = "CPU: No CPU found";
             row.insertCell(3).innerHTML = "No CPU found";
         }
+
         // RAM Info Display //
         try {
             let memKey = Object.keys(data._devices['Item_DeviceMemory']);
             document.getElementById("memory").innerHTML = ""
+
+            // Accounting for more than one RAM module
             if(memKey.length > 1) {
                 let memTotal = 0;
                 for (var i = 0; i < memKey.length; i++){
@@ -218,70 +230,72 @@
                 document.getElementById("memory").innerHTML += "Total memory: " + memTotal + "mb";
                 row.insertCell(4).innerHTML = memTotal
             }
+            // Exactly one RAM module
             else {
                 document.getElementById("memory").innerHTML += 
                 "Memory: " + data._devices["Item_DeviceMemory"][memKey]["size"];
                 row.insertCell(4).innerHTML = data._devices["Item_DeviceMemory"][memKey]["size"]
             }
         }
+        // Error handling
         catch {
             document.getElementById("memory").innerHTML = "No memory found"
             row.insertCell(4).innerHTML = "No memory found";
         }
         
         // HDD Info Display //
-        {
-            try {
-                const driveID = data._devices["Item_DeviceHardDrive"];
-                driveKey = Object.keys(driveID);
-                if (driveKey.length == 1) {
-                    document.getElementById("drive").innerHTML = driveID[driveKey]["deviceharddrives_id"]
-                    row.insertCell(5).innerHTML = driveID[driveKey]["deviceharddrives_id"];
-                }
-                else {
-                    console.log("More than 1 drive detected")
-                    let driveFinal;
-                    for(let i in driveKey) {
-                        if (i == 0) {
-                            driveFinal = driveID[driveKey[i]]["deviceharddrives_id"];
-                        }
-                        else {
-                            driveFinal += "; " + driveID[driveKey[i]]["deviceharddrives_id"].toString();
-                        }
-                    }
-                    console.log("scraped drives " + driveFinal)
-                    document.getElementById("drive").innerHTML = "HDD: " + driveFinal;
-                    row.insertCell(5).innerHTML = driveFinal;
-                }
+
+        try {
+            const driveID = data._devices["Item_DeviceHardDrive"];
+            driveKey = Object.keys(driveID);
+            if (driveKey.length == 1) {
+                document.getElementById("drive").innerHTML = driveID[driveKey]["deviceharddrives_id"]
+                row.insertCell(5).innerHTML = driveID[driveKey]["deviceharddrives_id"];
             }
-            catch (err) {
-                console.log(err)
-                document.getElementById("drive").innerHTML = "No drive found";
-                row.insertCell(5).innerHTML = "No drive found";
-            }   
+            else {
+                console.log("More than 1 drive detected")
+                let driveFinal;
+                for(let i in driveKey) {
+                    if (i == 0) {
+                        driveFinal = driveID[driveKey[i]]["deviceharddrives_id"];
+                    }
+                    else {
+                        driveFinal += "; " + driveID[driveKey[i]]["deviceharddrives_id"].toString();
+                    }
+                }
+                console.log("scraped drives " + driveFinal)
+                document.getElementById("drive").innerHTML = "HDD: " + driveFinal;
+                row.insertCell(5).innerHTML = driveFinal;
+            }
         }
+        catch (err) {
+            console.log(err)
+            document.getElementById("drive").innerHTML = "No drive found";
+            row.insertCell(5).innerHTML = "No drive found";
+        }   
+
+        // Non-hardcoded fields for screen size and other notes
         row.insertCell(6).innerHTML = '<input type="text" id ="ssize' + deviceCount + '"/>';
         row.insertCell(7).innerHTML = '<input type="text" id="notes'  + deviceCount + '"/>';
         deviceCount ++;
     }
+
+    // Pre-arranging CSV file as array
     function saveToCSV() {
         var savedNum = 0
-        // Variable to store the final csv data
         var csv_data = [];
-
-        // Get each row data
         var rows = document.getElementsByTagName('tr');
+
         for (var i = 0; i < rows.length; i++) {
 
             // Get each column data
             var cols = rows[i].querySelectorAll('td,th');
-
+            
             // Stores each csv row data
             var csvrow = [];
-            for (var j = 0; j < cols.length; j++) {
 
-                // Get the text data of each cell
-                // of a row and push it to csvrow
+            // Grabbing the info, conditionals for screen size and notes
+            for (var j = 0; j < cols.length; j++) {
                 if (j==6) {
                     if (i==0){
                         csvrow.push("Screen Size");
@@ -298,13 +312,11 @@
                     else {
                         console.log("attempting push of notes" + (i) + " with value " + document.getElementById("notes" + savedNum).value)
                         csvrow.push(document.getElementById("notes" + (i)).value);
-                    }
-                    
+                    }   
                 }
                 else {
                     csvrow.push(cols[j].innerHTML);
-                }
-                
+                }        
             }
 
             // Combine each column value with comma
@@ -314,12 +326,11 @@
 
         // Combine each row data with new line character
         csv_data = csv_data.join('\n');
-
-        // Call this function to download csv file 
         downloadCSVFile(csv_data);
 
     }
 
+    // Actually downloading the file
     function downloadCSVFile(csv_data) {
 
         // Create CSV file object and feed
