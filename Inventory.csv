@@ -13,5 +13,20 @@ CB8NQQ2,Dell Inc.,Latitude 5490,Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz,8192,SK
 38MTNN2,Dell Inc.,Latitude 5580,Intel(R) Core(TM) i5-7300U CPU @ 2.60GHz,16384,SK hynix SC401 SATA 256GB,15.6,No battery; no ram; bad ethernet; ALIAS VMNB0128
 CVJJMQ2,Dell Inc.,Latitude 5590,Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz,8192,WDC WD5000LPLX-75ZNTT0,15.6,No battery; ALIAS VMNB0131
 6L6RMQ2,Dell Inc.,Latitude 5490,Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz,8192,Micron 1100 SATA 256GB,13.3,No battery; no j key or joystick; no trackpad buttons
-H0J05S2,Dell Inc.,Latitude 5490,Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz,8192,No drive found,12.5,Don't even bother
+H0J05S2,Dell Inc.,Latitude 5490,Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz,8192,SAMSUNG SSD PM871b M.2 2280 256GB; SD Card,12.5,Don't even bother
 JR64Q32,Dell Inc.,Latitude E7250,No CPU found,8192,No drive found,12.5,Needs check
+3BH13Z2,Dell Inc.,XPS 13 7390,Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz,8192,BC511 NVMe SK hynix 256GB,13.3,Needs check
+H82BQQ2,Dell Inc.,Latitude 5490,Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz,8192,TOSHIBA KSG60ZMV256G M.2 2280 256GB,13.3,No battery; no RAM; no logo on boot; bad video adapter
+8NTRZW2,Dell Inc.,Latitude 5500,Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz,8192,BC501 NVMe SK hynix 256GB,15.5,Bad CPU; no battery; no HDD
+3134QV2,Dell Inc.,Latitude 5490,Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz,8192,SK hynix SC401 SATA 256GB,13.3,Bad sound card; no battery; no HDD
+8J9DMQ2,Dell Inc.,Latitude 5490,Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz,8192,Micron 1100 SATA 256GB,13.3,No battery; no RAM; no HDD; USB-C issues
+9BJ8QV2,Dell Inc.,Latitude 5490,Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz,8192,SanDisk X600 M.2 2280 SATA 256GB,13.3,Bad touchpad left click; need back swap with ILLKMQ2
+5XP1533,Dell Inc.,Latitude 5400,Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz,8192,KBG40ZNS256G NVMe KIOXIA 256GB,13.3,No battery; no RAM; no screen
+B0F7NN2,Dell Inc.,Latitude 5580,Intel(R) Core(TM) i5-7300U CPU @ 2.60GHz,8192,ST500LM021-1KJ152; HP Officejet Pro 86 USB Device,15.5,No battery; static noise; long boot time
+C13CQV2,Dell Inc.,Latitude 5490,Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz,8192,SK hynix SC401 SATA 256GB,13.3,No screen; no keyboard; no battery
+CM3M4M2,Dell Inc.,Latitude 5480,Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz,8192,SAMSUNG SSD PM871b M.2 2280 128GB,13.3,Bad keyboard; no battery; damaged bottom chassis
+7MDQFL3,Dell Inc.,Latitude 3520,No CPU found,8192,NVMe BC711 NVMe SK hynix 256GB,13.3,Needs check
+DGT7FH2,Dell Inc.,Latitude 5580,Intel(R) Core(TM) i5-7300U CPU @ 2.60GHz,8192,WDC WD5000LPLX-75ZNTT0,15.5,ALIAS VMNB0112; bad C port; no battery
+G49PNH2,Dell Inc.,Latitude 5580,Intel(R) Core(TM) i5-7300U CPU @ 2.60GHz,8192,WDC WD5000LPLX-75ZNTT0,15.5,Bad battery; no RAM error; bad keyboard
+DPHD3M2,Dell Inc.,Latitude 5480,Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz,8192,SK hynix SC308 SATA 128GB,13.3,No F1 key; no battery; slow boot; bad touchpad
+FCPD3M2,Dell Inc.,Latitude 5480,Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz,8192,SK hynix SC308 SATA 128GB,13.3,No battery; broken right click; broken keyboard
