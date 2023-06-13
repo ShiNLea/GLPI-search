@@ -15,9 +15,11 @@
                 <button type="button" id="get_Connection" class = "button">Submit Token</button>
                 <button type="button" id="kill_Connection" class="button button2">Kill Session</button><br>
                 <p id="successOrFailPrompt"></p><br>
-                <label>Enter the service tag of the device.</label><br>
-                <input id="searchTerm" type ="input" name="searchTerm" value="" placeholder="Service Tag">
-                <button type="button" id="search_By_Tag">Search</button>
+                <div id="searchSection">
+                    <label>Enter the service tag of the device.</label><br>
+                    <input id="searchTerm" type ="input" name="searchTerm" value="" placeholder="Service Tag">
+                    <button type="button" id="search_By_Tag">Search</button>
+                </div>
             </form>
             <div id="infoSection">
                 <h3 id="infoHeader">Device Info</h3>
@@ -29,8 +31,18 @@
                 <h5 id="drive">HDD:</h5>
                 <!--Displaying grabbed info here--> 
                 <div id="tableSection">
+                    <div id="buttonSection"></div>
                     <table id="infoTable">
-                        <div id="buttonSection"></div>
+                        <tr>
+                            <th>Serial</th>
+                            <th>Manufacturer</th>
+                            <th>Model</th>
+                            <th>CPU</th>
+                            <th>Memory</th>
+                            <th>Drive</th>
+                            <th>Screen Size</th>
+                            <th>Notes</th>
+                        </tr>
                     </table><br>
                 </div>   
             </div>
@@ -44,6 +56,9 @@
     the inputted service tag, and uses that to talk to GLPI's API.
 -->
 <script>
+    document.getElementById("infoSection").style.display = "none";
+    document.getElementById("searchSection").style.display = "none";
+    document.getElementById("kill_Connection").style.display = "none";
     document.getElementById("infoSection").style.display = "none";
     const getConnection = document.querySelector("#get_Connection");
     const killSession = document.querySelector("#kill_Connection");
@@ -78,16 +93,17 @@
                     console.log("Connection successful");
                     prompt.innerHTML = "Entry granted.";
                     prompt.style.color = "#3F9C5F";
-                    
-                    document.getElementById("infoTable").innerHTML = "<tr><th>Serial</th><th>Manufacturer</th><th>Model</th><th>CPU</th><th>Memory</th><th>Drive</th><th>Screen Size</th><th>Notes</th></tr>";
+                    document.getElementById("get_Connection").style.display = "none";
+                    document.getElementById("kill_Connection").style.display = "block";
                     document.getElementById("buttonSection").innerHTML = '<button type="button" onclick="saveToCSV()" id="exportButton">Export to CSV</button>';
-                    document.getElementById("infoSection").style.display = "block";
+                    document.getElementById("infoSection").style.display = "inline";
+                    document.getElementById("searchSection").style.display = "block";
                     resolve(data);
                 } ,
                 error: function(data) {
                     prompt.innerHTML = "Error occurred. Check the API key or blame Ryan for bad coding."
                     prompt.style.color = "#CC0000"
-                    console.log("Error occurred")
+                    console.log("Connection failed")
                 }
             })
         })
@@ -111,10 +127,13 @@
                 xhr.setRequestHeader('Session-Token', sessionToken );
             },
             success: function(data){
+                document.getElementById("get_Connection").style.display = "block";
+                document.getElementById("kill_Connection").style.display = "none";
+                //document.getElementById("searchSection").style.display = "none";
                 console.log("Session killed successfully")
                 prompt.innerHTML = "Session killed. Reenter API Token for access.";
                 prompt.style.color = "#3F9C5F";
-                document.getElementById("infoSection").style.display = "none";
+                //document.getElementById("infoSection").style.display = "none";
             },
             error: function(){
                 console.log("Session kill failed")
@@ -244,7 +263,6 @@
         }
         
         // HDD Info Display //
-
         try {
             const driveID = data._devices["Item_DeviceHardDrive"];
             driveKey = Object.keys(driveID);
