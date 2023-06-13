@@ -3,10 +3,13 @@
 // the inputted service tag, and uses that to talk to GLPI's API.
 
 // Preemptively hiding elements for visual appeal later on
-document.getElementById("infoSection").style.display = "none";
-document.getElementById("searchSection").style.display = "none";
-document.getElementById("kill_Connection").style.display = "none";
-document.getElementById("infoSection").style.display = "none";
+let infoSection = document.getElementById("infoSection");
+let searchSection = document.getElementById("searchSection");
+let killConnectionButton = document.getElementById("kill_Connection");
+
+infoSection.style.display = "none";
+searchSection.style.display = "none";
+killConnectionButton.style.display = "none";
 
 // Declaring buttons beforehand
 const getConnection = document.querySelector("#get_Connection");
@@ -25,7 +28,7 @@ var deviceCount = 1;
 function establishConnection() {
     deviceCount = 1;
     console.log("Attempting connection...")
-    const getToken = new Promise(function(resolve, reject) {
+    const getToken = new Promise(function(resolve) {
         let userToken = document.getElementById("userToken").value;
         let finalHeader = "user_token ".concat(userToken);
         const prompt = document.getElementById("successOrFailPrompt");
@@ -43,10 +46,10 @@ function establishConnection() {
                 prompt.innerHTML = "Entry granted.";
                 prompt.style.color = "#3F9C5F";
                 document.getElementById("get_Connection").style.display = "none";
-                document.getElementById("kill_Connection").style.display = "block";
+                killConnectionButton.style.display = "block";
                 document.getElementById("buttonSection").innerHTML = '<button type="button" onclick="saveToCSV()" id="exportButton">Export to CSV</button>';
-                document.getElementById("infoSection").style.display = "inline";
-                document.getElementById("searchSection").style.display = "block";
+                infoSection.style.display = "inline";
+                searchSection.style.display = "block";
                 resolve(data);
             } ,
             error: function(data) {
@@ -77,12 +80,12 @@ function killConnection(sessionToken){
         },
         success: function(data){
             document.getElementById("get_Connection").style.display = "block";
-            document.getElementById("kill_Connection").style.display = "none";
-            document.getElementById("searchSection").style.display = "none";
+            killConnectionButton.style.display = "none";
+            searchSection.style.display = "none";
             console.log("Session killed successfully")
             prompt.innerHTML = "Session killed. Reenter API Token for access.";
             prompt.style.color = "#3F9C5F";
-            //document.getElementById("infoSection").style.display = "none";
+            //infoSection.style.display = "none";
         },
         error: function(){
             console.log("Session kill failed")
