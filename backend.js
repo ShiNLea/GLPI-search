@@ -53,9 +53,9 @@ function establishConnection() {
                 resolve(data);
             } ,
             error: function(data) {
-                prompt.innerHTML = "Error occurred. Check the API key or blame Ryan for bad coding."
-                prompt.style.color = "#CC0000"
-                console.log("Connection failed")
+                prompt.innerHTML = "Error occurred. Check the API key or blame Ryan for bad coding.";
+                prompt.style.color = "#CC0000";
+                console.log("Connection failed");
             }
         })
     })
@@ -67,7 +67,7 @@ function establishConnection() {
 // Killing the granted session token //
 function killConnection(sessionToken){
     prompt = document.getElementById("successOrFailPrompt");
-    console.log("Attempting session kill...")
+    console.log("Attempting session kill...");
     $.ajax({
         type: 'GET',
         url: "https://glpi.bdli.local/glpi/apirest.php/killSession",
@@ -82,15 +82,15 @@ function killConnection(sessionToken){
             document.getElementById("get_Connection").style.display = "block";
             killConnectionButton.style.display = "none";
             searchSection.style.display = "none";
-            console.log("Session killed successfully")
+            console.log("Session killed successfully");
             prompt.innerHTML = "Session killed. Reenter API Token for access.";
             prompt.style.color = "#3F9C5F";
             //infoSection.style.display = "none";
         },
         error: function(){
-            console.log("Session kill failed")
+            console.log("Session kill failed");
             prompt.innerHTML = "Could not kill session.";
-            prompt.style.color = "#CC0000"
+            prompt.style.color = "#CC0000";
         }
     });
 }
@@ -101,28 +101,28 @@ function searchByTag(sessionToken){
 
     // Accounting for blank search field
     if (searchTerm == "" || searchTerm == null) {
-        alert("Enter a search term or blame Ryan for bad coding.")
+        alert("Enter a search term or blame Ryan for bad coding.");
     }
     else {
-        console.log("Attempting search by serial " + searchTerm + "...")
+        console.log("Attempting search by serial " + searchTerm + "...");
         $.ajax({
             type: 'GET',
             url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2',
             data: {},
             crossDomain: true,
             beforeSend: function(xhr) {
-                xhr.setRequestHeader('Session-Token', sessionToken )
-                xhr.setRequestHeader('Authorization', document.getElementById("userToken").value)
+                xhr.setRequestHeader('Session-Token', sessionToken);
+                xhr.setRequestHeader('Authorization', document.getElementById("userToken").value);
             },
             success: function(data){
                 var json = data;
                 // Got a response but no data
                 if (json.data === undefined) {
-                    console.log("Search unsuccessful")
-                    alert("Could not get device info.")
+                    console.log("Search unsuccessful");
+                    alert("Could not get device info.");
                 }
                 else {
-                    console.log("Search successful")
+                    console.log("Search successful");
                     getInfo(sessionToken, json.data[0]["2"]);
                 }
             }
@@ -141,18 +141,18 @@ function getInfo(sessionToken, itemID){
         crossDomain: true,
         
         beforeSend: function(xhr) {
-            xhr.setRequestHeader('Session-Token', sessionToken )
-            xhr.setRequestHeader('Authorization', document.getElementById("userToken").value)
+            xhr.setRequestHeader('Session-Token', sessionToken );
+            xhr.setRequestHeader('Authorization', document.getElementById("userToken").value);
         },
         success: function(data){
             var json = data;
-            console.log("Info grab successful")
+            console.log("Info grab successful");
             // No search result
             if (json.count == 0){
-                alert("No device found.")
+                alert("No device found.");
             }
             else {
-                displayInfo(data)
+                displayInfo(data);
             }
         }
     });
@@ -187,7 +187,7 @@ function displayInfo(data){
     // RAM Info Display //
     try {
         let memKey = Object.keys(data._devices['Item_DeviceMemory']);
-        document.getElementById("memory").innerHTML = ""
+        document.getElementById("memory").innerHTML = "";
 
         // Accounting for more than one RAM module
         if(memKey.length > 1) {
@@ -205,12 +205,12 @@ function displayInfo(data){
         else {
             document.getElementById("memory").innerHTML += 
             "Memory: " + data._devices["Item_DeviceMemory"][memKey]["size"];
-            row.insertCell(4).innerHTML = data._devices["Item_DeviceMemory"][memKey]["size"]
+            row.insertCell(4).innerHTML = data._devices["Item_DeviceMemory"][memKey]["size"];
         }
     }
     // Error handling
     catch {
-        document.getElementById("memory").innerHTML = "No memory found"
+        document.getElementById("memory").innerHTML = "No memory found";
         row.insertCell(4).innerHTML = "No memory found";
     }
     
@@ -252,7 +252,7 @@ function displayInfo(data){
 
 // Pre-arranging CSV file as array
 function saveToCSV() {
-    var savedNum = 0
+    var savedNum = 0;
     var csv_data = [];
     var rows = document.getElementsByTagName('tr');
 
@@ -277,7 +277,7 @@ function saveToCSV() {
             else if (j==7) {
                 if (i==0) {
                     csvrow.push("Notes");
-                    console.log("pushed header")
+                    console.log("pushed header");
                 }
                 else {
                     console.log("attempting push of notes" + (i) + " with value " + document.getElementById("notes" + savedNum).value)
@@ -314,9 +314,9 @@ function downloadCSVFile(csv_data) {
     var temp_link = document.createElement('a');
 
     // Download csv file
-    let fileName = Date().slice(0, 24) + ".csv"
-    fileName[22] = "-"
-    fileName[19] = "-"
+    let fileName = Date().slice(0, 24) + ".csv";
+    fileName[22] = "-";
+    fileName[19] = "-";
     temp_link.download = fileName;
     var url = window.URL.createObjectURL(CSVFile);
     temp_link.href = url;
