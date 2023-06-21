@@ -50,6 +50,7 @@ function establishConnection() {
                 document.getElementById("buttonSection").innerHTML = '<button type="button" onclick="saveToCSV()" id="exportButton">Export to CSV</button>';
                 infoSection.style.display = "inline";
                 searchSection.style.display = "block";
+                document.getElementById("userToken").style.display = "none";
                 resolve(data);
             } ,
             error: function(data) {
@@ -64,6 +65,7 @@ function establishConnection() {
     })
     
 };
+
 // Killing the granted session token //
 function killConnection(sessionToken){
     prompt = document.getElementById("successOrFailPrompt");
@@ -85,6 +87,7 @@ function killConnection(sessionToken){
             console.log("Session killed successfully");
             prompt.innerHTML = "Session killed. Reenter API Token for access.";
             prompt.style.color = "#3F9C5F";
+            document.getElementById("userToken").style.display = "block";
             //infoSection.style.display = "none";
         },
         error: function(){
