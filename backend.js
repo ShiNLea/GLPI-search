@@ -257,13 +257,22 @@ function displayInfo(data){
     }   
 
     // Non-hardcoded fields for screen size and other notes
-    if (modelArray.includes(data.computermodels_id)) {
-        console.log("Existing model detected. Auto-filling screen size.")
-        row.insertCell(6).innerHTML = '<input type="text" id ="ssize' + deviceCount + '"/>';
+    let isPresent = 0;
+    for (let i = 0; i < modelArray.length; i++) {
+        console.log("testing " + modelArray[i][0] + " vs " + data.computermodels_id)
+        if (modelArray[i][0] == data.computermodels_id) {
+            console.log("Existing device " + data.computermodels_id + " discovered. Auto-filling screen size")
+            isPresent = 1;
+            row.insertCell(6).innerHTML = '<input type="text" id="ssize'  + deviceCount + '"/>';
+            document.getElementById("ssize" + deviceCount).value = document.getElementById("ssize" + modelArray[i][1]).value;
+            break;
+        }
     }
-    else {
-        row.insertCell(6).innerHTML = '<input type="text" id ="ssize' + deviceCount + '"/>';
-        modelArray.push(data.computermodels_id);
+    if (isPresent == 0) {
+        console.log("New model " + data.computermodels_id + " detected")
+        row.insertCell(6).innerHTML = '<input type="text" id="ssize'  + deviceCount + '"/>';
+        modelArray.push([data.computermodels_id, deviceCount]);
+        console.log ("modelArray updated to " + modelArray);
     }
     row.insertCell(7).innerHTML = '<input type="text" id="notes'  + deviceCount + '"/>';
     deviceCount ++;
