@@ -6,6 +6,8 @@
 let infoSection = document.getElementById("infoSection");
 let searchSection = document.getElementById("searchSection");
 let killConnectionButton = document.getElementById("kill_Connection");
+let IDArray = [];
+let modelArray = [];
 
 infoSection.style.display = "none";
 searchSection.style.display = "none";
@@ -135,37 +137,44 @@ function searchByTag(sessionToken){
 
 // Grabbing the ID# for the chosen system via API endpoint //
 function getInfo(sessionToken, itemID){
-    console.log("Attempting info grab by ID " + itemID + "...");
+    
     itemID = itemID.toString(10);
-    $.ajax({
-        type: 'GET',
-        url: "https://glpi.bdli.local/glpi/apirest.php/Computer/" + itemID + "?expand_dropdowns=true&with_devices=true",
-        data: {},
-        crossDomain: true,
-        
-        beforeSend: function(xhr) {
-            xhr.setRequestHeader('Session-Token', sessionToken );
-            xhr.setRequestHeader('Authorization', document.getElementById("userToken").value);
-        },
-        success: function(data){
-            var json = data;
-            console.log("Info grab successful");
-            // No search result
-            if (json.count == 0){
-                alert("No device found.");
+    if (IDArray.includes(itemID)) {
+        console.log("Existing entry for ID " + itemID + " detected; skipping entry")
+        alert("Duplicate entry detected. Retry or blame Ryan for bad coding.");
+    }
+    else {
+        console.log("Attempting info grab by ID " + itemID + "...");
+        IDArray.push(itemID);
+        $.ajax({
+            type: 'GET',
+            url: "https://glpi.bdli.local/glpi/apirest.php/Computer/" + itemID + "?expand_dropdowns=true&with_devices=true",
+            data: {},
+            crossDomain: true,
+            
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('Session-Token', sessionToken );
+                xhr.setRequestHeader('Authorization', document.getElementById("userToken").value);
+            },
+            success: function(data){
+                var json = data;
+                console.log("Info grab successful");
+                // No search result
+                if (json.count == 0){
+                    alert("No device found.");
+                }
+                else {
+                    displayInfo(data);
+                }
             }
-            else {
-                displayInfo(data);
-            }
-        }
-    });
+        });
+    }
 }
 
 // Information Display Function //
 function displayInfo(data){
     var table = document.getElementById("infoTable");
     var row = table.insertRow(-1);
-
     // Writing all the stuff that there's (probably) only one of
     document.getElementById("serial").innerHTML = "Serial: " + data.serial;
     row.insertCell(0).innerHTML = data.serial;
@@ -248,7 +257,14 @@ function displayInfo(data){
     }   
 
     // Non-hardcoded fields for screen size and other notes
-    row.insertCell(6).innerHTML = '<input type="text" id ="ssize' + deviceCount + '"/>';
+    if (modelArray.includes(data.computermodels_id)) {
+        console.log("Existing model detected. Auto-filling screen size.")
+        row.insertCell(6).innerHTML = '<input type="text" id ="ssize' + deviceCount + '"/>';
+    }
+    else {
+        row.insertCell(6).innerHTML = '<input type="text" id ="ssize' + deviceCount + '"/>';
+        modelArray.push(data.computermodels_id);
+    }
     row.insertCell(7).innerHTML = '<input type="text" id="notes'  + deviceCount + '"/>';
     deviceCount ++;
 }
@@ -307,7 +323,7 @@ function saveToCSV() {
 function downloadCSVFile(csv_data) {
 
     // Create CSV file object and feed
-    // our csv_data into it
+    // csv_data into it
     CSVFile = new Blob([csv_data], {
         type: "text/csv"
     });
