@@ -245,13 +245,12 @@ function displayInfo(data){
                     driveFinal += "; " + driveID[driveKey[i]]["deviceharddrives_id"].toString();
                 }
             }
-            console.log("scraped drives " + driveFinal)
             document.getElementById("drive").innerHTML = "HDD: " + driveFinal;
             row.insertCell(5).innerHTML = driveFinal;
         }
     }
     catch (err) {
-        console.log(err)
+        console.log(err);
         document.getElementById("drive").innerHTML = "No drive found";
         row.insertCell(5).innerHTML = "No drive found";
     }   
@@ -259,9 +258,8 @@ function displayInfo(data){
     // Non-hardcoded fields for screen size and other notes
     let isPresent = 0;
     for (let i = 0; i < modelArray.length; i++) {
-        console.log("testing " + modelArray[i][0] + " vs " + data.computermodels_id)
         if (modelArray[i][0] == data.computermodels_id) {
-            console.log("Existing device " + data.computermodels_id + " discovered. Auto-filling screen size")
+            console.log("Existing device " + data.computermodels_id + " discovered. Auto-filling screen size");
             isPresent = 1;
             row.insertCell(6).innerHTML = '<input type="text" id="ssize'  + deviceCount + '"/>';
             document.getElementById("ssize" + deviceCount).value = document.getElementById("ssize" + modelArray[i][1]).value;
@@ -269,10 +267,9 @@ function displayInfo(data){
         }
     }
     if (isPresent == 0) {
-        console.log("New model " + data.computermodels_id + " detected")
+        console.log("New model " + data.computermodels_id + " detected");
         row.insertCell(6).innerHTML = '<input type="text" id="ssize'  + deviceCount + '"/>';
         modelArray.push([data.computermodels_id, deviceCount]);
-        console.log ("modelArray updated to " + modelArray);
     }
     row.insertCell(7).innerHTML = '<input type="text" id="notes'  + deviceCount + '"/>';
     deviceCount ++;
