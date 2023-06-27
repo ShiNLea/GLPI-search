@@ -64,8 +64,7 @@ function establishConnection() {
     })
     getToken.then((token) => {
         sessionToken = token.session_token;
-    })
-    
+    }) 
 };
 
 // Killing the granted session token //
@@ -255,7 +254,8 @@ function displayInfo(data){
         row.insertCell(5).innerHTML = "No drive found";
     }   
 
-    // Non-hardcoded fields for screen size and other notes
+    // Non-hardcoded fields for screen size and other notes //
+    // Detecting same model entries; auto-fills screen size.
     let isPresent = 0;
     for (let i = 0; i < modelArray.length; i++) {
         if (modelArray[i][0] == data.computermodels_id) {
