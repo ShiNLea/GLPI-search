@@ -28,7 +28,6 @@ var deviceCount = 1;
 
 // Establishing connection and getting session token //
 function establishConnection() {
-    deviceCount = 1;
     console.log("Attempting connection...")
     const getToken = new Promise(function(resolve) {
         let userToken = document.getElementById("userToken").value;
