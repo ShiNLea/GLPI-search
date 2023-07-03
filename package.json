@@ -1,10 +1,15 @@
 {
+<<<<<<< Updated upstream
 	"name": "lodgelink",
+=======
+	"name": "application",
+>>>>>>> Stashed changes
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
+<<<<<<< Updated upstream
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch"
@@ -18,6 +23,14 @@
 		"svelte": "^4.0.0",
 		"svelte-check": "^3.4.3",
 		"typescript": "^5.0.0",
+=======
+		"preview": "vite preview"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^2.0.0",
+		"@sveltejs/kit": "^1.20.4",
+		"svelte": "^4.0.0",
+>>>>>>> Stashed changes
 		"vite": "^4.3.6"
 	},
 	"type": "module"
