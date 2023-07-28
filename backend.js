@@ -34,33 +34,32 @@ function establishConnection() {
         let userToken = document.getElementById("userToken").value;
         let finalHeader = "user_token ".concat(userToken);
         const prompt = document.getElementById("successOrFailPrompt");
-        $.ajax({
-            type: 'GET',
-            url: "https://glpi.bdli.local/glpi/apirest.php/initSession",
-            data: {},
-            crossDomain: true,
-            
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader('Authorization', finalHeader);
-            },
-            success: function(data){
+        
+        try {
+            fetch("https://glpi.bdli.local/glpi/apirest.php/initSession", {
+                method: "GET",
+                headers: {
+                    Authorization:finalHeader
+                }
+            }).then((response) => response.json())
+            .then((data) => {
                 console.log("Connection successful");
                 prompt.innerHTML = "Entry granted.";
                 prompt.style.color = "#3F9C5F";
                 document.getElementById("get_Connection").style.display = "none";
+                // Swapping visible elements
                 killConnectionButton.style.display = "block";
                 document.getElementById("buttonSection").innerHTML = '<button type="button" onclick="saveToCSV()" id="exportButton">Export to CSV</button>';
                 infoSection.style.display = "inline";
                 searchSection.style.display = "block";
                 document.getElementById("userToken").style.display = "none";
                 resolve(data);
-            } ,
-            error: function(data) {
-                prompt.innerHTML = "Error occurred. Check the API key or blame Ryan for bad coding.";
-                prompt.style.color = "#CC0000";
-                console.log("Connection failed");
-            }
-        })
+            })}
+        catch (error) {
+            prompt.innerHTML = "Error occurred. Check the API key or blame Ryan for bad coding.";
+            prompt.style.color = "#CC0000";
+            console.log("Connection failed");
+        }
     })
     getToken.then((token) => {
         sessionToken = token.session_token;
@@ -71,17 +70,14 @@ function establishConnection() {
 function killConnection(sessionToken){
     prompt = document.getElementById("successOrFailPrompt");
     console.log("Attempting session kill...");
-    $.ajax({
-        type: 'GET',
-        url: "https://glpi.bdli.local/glpi/apirest.php/killSession",
-        data: {},
-        dataType: 'text',
-        crossDomain: true,
-        
-        beforeSend: function(xhr) {
-            xhr.setRequestHeader('Session-Token', sessionToken );
-        },
-        success: function(data){
+    
+    try {
+        fetch("https://glpi.bdli.local/glpi/apirest.php/killSession", {
+            method: "GET",
+            headers: {
+                "Session-Token":sessionToken
+            }
+        }).then(() => {
             document.getElementById("get_Connection").style.display = "block";
             killConnectionButton.style.display = "none";
             searchSection.style.display = "none";
@@ -90,13 +86,12 @@ function killConnection(sessionToken){
             prompt.style.color = "#3F9C5F";
             document.getElementById("userToken").style.display = "block";
             //infoSection.style.display = "none";
-        },
-        error: function(){
-            console.log("Session kill failed");
-            prompt.innerHTML = "Could not kill session.";
-            prompt.style.color = "#CC0000";
-        }
-    });
+        })}
+    catch (error) {
+        console.log("Session kill failed");
+        prompt.innerHTML = "Could not kill session.";
+        prompt.style.color = "#CC0000";
+    }
 }
 
 // Searching GLPI database for laptop based on serial ID //
@@ -109,16 +104,16 @@ function searchByTag(sessionToken){
     }
     else {
         console.log("Attempting search by serial " + searchTerm + "...");
-        $.ajax({
-            type: 'GET',
-            url: 'https://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2',
-            data: {},
-            crossDomain: true,
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader('Session-Token', sessionToken);
-                xhr.setRequestHeader('Authorization', document.getElementById("userToken").value);
-            },
-            success: function(data){
+        // Searching by tag (trust me it works)
+        try {
+            fetch('https://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2', {
+                method: "GET",
+                headers: {
+                    "Session-Token":sessionToken,
+                    Authorization:document.getElementById("userToken").value
+                }
+            }).then((response) => response.json())
+            .then((data) => {
                 var json = data;
                 // Got a response but no data
                 if (json.data === undefined) {
@@ -129,8 +124,12 @@ function searchByTag(sessionToken){
                     console.log("Search successful");
                     getInfo(sessionToken, json.data[0]["2"]);
                 }
-            }
-        });
+        })}
+        catch (error) {
+            console.log("Search failed");
+            prompt.innerHTML = "Failed to search.";
+            prompt.style.color = "#CC0000";
+    }
     }
 }
 
@@ -145,17 +144,16 @@ function getInfo(sessionToken, itemID){
     else {
         console.log("Attempting info grab by ID " + itemID + "...");
         IDArray.push(itemID);
-        $.ajax({
-            type: 'GET',
-            url: "https://glpi.bdli.local/glpi/apirest.php/Computer/" + itemID + "?expand_dropdowns=true&with_devices=true",
-            data: {},
-            crossDomain: true,
-            
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader('Session-Token', sessionToken );
-                xhr.setRequestHeader('Authorization', document.getElementById("userToken").value);
-            },
-            success: function(data){
+
+        try {
+            fetch("https://glpi.bdli.local/glpi/apirest.php/Computer/" + itemID + "?expand_dropdowns=true&with_devices=true", {
+                method: "GET",
+                headers: {
+                    "Session-Token":sessionToken,
+                    Authorization:document.getElementById("userToken").value
+                }
+            }).then((response) => response.json())
+            .then((data) => {
                 var json = data;
                 console.log("Info grab successful");
                 // No search result
@@ -165,8 +163,12 @@ function getInfo(sessionToken, itemID){
                 else {
                     displayInfo(data);
                 }
-            }
-        });
+        })}
+        catch (error) {
+            console.log("Search failed");
+            prompt.innerHTML = "Failed to search.";
+            prompt.style.color = "#CC0000";
+    }
     }
 }
 
