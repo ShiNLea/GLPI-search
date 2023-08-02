@@ -38,6 +38,8 @@ function establishConnection() {
         try {
             fetch("https://glpi.bdli.local/glpi/apirest.php/initSession", {
                 method: "GET",
+                mode:"cors",
+                cache:"no-cache",
                 headers: {
                     Authorization:finalHeader
                 }
