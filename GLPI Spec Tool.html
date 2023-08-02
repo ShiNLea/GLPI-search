@@ -2,8 +2,6 @@
 <html>
     <head>
         <title>Project Jerez - GLPI Integration</title>
-        <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
-        <link rel="stylesheet" href="./modules/style.css">
     </head>
     <body>
         <div class="content">
@@ -47,6 +45,9 @@
             </div>
         </div>  
     </body>
+    <footer>
+        <p>Made (mostly) with &#128150; by Ryan Lo</p>
+    </footer>
 </html>
 
 <script>
@@ -90,8 +91,11 @@
             try {
                 fetch("https://glpi.bdli.local/glpi/apirest.php/initSession", {
                     method: "GET",
+                    rejectUnauthorized: false,
+                    mode:"cors",
+                    cache:"no-cache",
                     headers: {
-                        Authorization:finalHeader
+                        Authorization:finalHeader,
                     }
                 }).then((response) => response.json())
                 .then((data) => {
