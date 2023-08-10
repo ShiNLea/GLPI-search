@@ -34,34 +34,37 @@ function establishConnection() {
         let userToken = document.getElementById("userToken").value;
         let finalHeader = "user_token ".concat(userToken);
         const prompt = document.getElementById("successOrFailPrompt");
-        
-        try {
-            fetch("https://glpi.bdli.local/glpi/apirest.php/initSession", {
-                method: "GET",
-                mode:"cors",
-                cache:"no-cache",
-                headers: {
-                    Authorization:finalHeader
-                }
-            }).then((response) => response.json())
-            .then((data) => {
-                console.log("Connection successful");
-                prompt.innerHTML = "Entry granted.";
-                prompt.style.color = "#3F9C5F";
-                document.getElementById("get_Connection").style.display = "none";
-                // Swapping visible elements
-                killConnectionButton.style.display = "block";
-                document.getElementById("buttonSection").innerHTML = '<button type="button" onclick="saveToCSV()" id="exportButton">Export to CSV</button>';
-                infoSection.style.display = "inline";
-                searchSection.style.display = "block";
-                document.getElementById("userToken").style.display = "none";
-                resolve(data);
-            })}
-        catch (error) {
-            prompt.innerHTML = "Error occurred. Check the API key or blame Ryan for bad coding.";
-            prompt.style.color = "#CC0000";
-            console.log("Connection failed");
-        }
+
+        fetch("http://glpi.bdli.local/glpi/apirest.php/initSession", {
+            method: "GET",
+            mode:"cors",
+            cache:"no-cache",
+            headers: {
+                Authorization:finalHeader,
+                "Content-Type":"application/json"
+            }
+        }).then((response) => {
+            if (response.ok) {
+                response.json()
+            }
+            else {
+                prompt.innerHTML = "Error occurred. Check the API key or blame Ryan for bad coding.";
+                prompt.style.color = "#CC0000";
+                throw new Error("Connection failed.");
+            }
+        }).then((data) => {
+            console.log("Connection successful");
+            prompt.innerHTML = "Entry granted.";
+            prompt.style.color = "#3F9C5F";
+            document.getElementById("get_Connection").style.display = "none";
+            // Swapping visible elements
+            killConnectionButton.style.display = "block";
+            document.getElementById("buttonSection").innerHTML = '<button type="button" onclick="saveToCSV()" id="exportButton">Export to CSV</button>';
+            infoSection.style.display = "inline";
+            searchSection.style.display = "block";
+            document.getElementById("userToken").style.display = "none";
+            resolve(data);
+        })
     })
     getToken.then((token) => {
         sessionToken = token.session_token;
@@ -74,7 +77,7 @@ function killConnection(sessionToken){
     console.log("Attempting session kill...");
     
     try {
-        fetch("https://glpi.bdli.local/glpi/apirest.php/killSession", {
+        fetch("http://glpi.bdli.local/glpi/apirest.php/killSession", {
             method: "GET",
             headers: {
                 "Session-Token":sessionToken
@@ -98,46 +101,49 @@ function killConnection(sessionToken){
 
 // Searching GLPI database for laptop based on serial ID //
 function searchByTag(sessionToken){
-    searchTerm = document.getElementById("searchTerm").value;
+    const searchTerm = document.getElementById("searchTerm").value;
 
     // Accounting for blank search field
-    if (searchTerm == "" || searchTerm == null) {
+    if (searchTerm === "" || searchTerm == null) {
         alert("Enter a search term or blame Ryan for bad coding.");
     }
     else {
         console.log("Attempting search by serial " + searchTerm + "...");
-        // Searching by tag (trust me it works)
-        try {
-            fetch('https://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2', {
-                method: "GET",
-                headers: {
-                    "Session-Token":sessionToken,
-                    Authorization:document.getElementById("userToken").value
-                }
-            }).then((response) => response.json())
-            .then((data) => {
-                var json = data;
-                // Got a response but no data
-                if (json.data === undefined) {
-                    console.log("Search unsuccessful");
-                    alert("Could not get device info.");
-                }
-                else {
-                    console.log("Search successful");
-                    getInfo(sessionToken, json.data[0]["2"]);
-                }
-        })}
-        catch (error) {
-            console.log("Search failed");
-            prompt.innerHTML = "Failed to search.";
-            prompt.style.color = "#CC0000";
-    }
+
+        // Searching for internal ID by tag (trust me it works)
+        fetch('http://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2', {
+            method: "GET",
+            headers: {
+                "Session-Token":sessionToken,
+                Authorization:document.getElementById("userToken").value
+            }
+        }).then((response) => {
+            if (response.ok) {
+                response.json();
+            }
+            else {
+                prompt.innerHTML = "Failed to search.";
+                prompt.style.color = "#CC0000";
+                throw new Error ("Failed to search.")
+            }
+        }).then((data) => {
+            var json = data;
+            // Got a response but no data
+            if (json.data === undefined) {
+                console.log("Search conducted; no results available.");
+                alert("Search conducted; no results available.");
+            }
+            else {
+                console.log("Search successful");
+                getInfo(sessionToken, json.data[0]["2"]);
+            }
+        })
     }
 }
 
 // Grabbing the ID# for the chosen system via API endpoint //
 function getInfo(sessionToken, itemID){
-    
+    // Accounting for existing devices
     itemID = itemID.toString(10);
     if (IDArray.includes(itemID)) {
         console.log("Existing entry for ID " + itemID + " detected; skipping entry")
@@ -147,30 +153,32 @@ function getInfo(sessionToken, itemID){
         console.log("Attempting info grab by ID " + itemID + "...");
         IDArray.push(itemID);
 
-        try {
-            fetch("https://glpi.bdli.local/glpi/apirest.php/Computer/" + itemID + "?expand_dropdowns=true&with_devices=true", {
-                method: "GET",
-                headers: {
-                    "Session-Token":sessionToken,
-                    Authorization:document.getElementById("userToken").value
-                }
-            }).then((response) => response.json())
-            .then((data) => {
-                var json = data;
-                console.log("Info grab successful");
-                // No search result
-                if (json.count == 0){
-                    alert("No device found.");
-                }
-                else {
-                    displayInfo(data);
-                }
-        })}
-        catch (error) {
-            console.log("Search failed");
-            prompt.innerHTML = "Failed to search.";
-            prompt.style.color = "#CC0000";
-    }
+        fetch("http://glpi.bdli.local/glpi/apirest.php/Computer/" + itemID + "?expand_dropdowns=true&with_devices=true", {
+            method: "GET",
+            headers: {
+                "Session-Token":sessionToken,
+                Authorization:document.getElementById("userToken").value
+            }
+        }).then((response) => {
+            if (response.ok) {
+                response.json();
+            }
+            else {
+                prompt.innerHTML = "Failed to search.";
+                prompt.style.color = "#CC0000";
+                throw new Error("Search failed.");
+            }
+        }).then((data) => {
+            var json = data;
+            console.log("Search conducted successfully.");
+            // No search result
+            if (json.count === 0){
+                alert("No device found.");
+            }
+            else {
+                displayInfo(data);
+            }
+        })
     }
 }
 
