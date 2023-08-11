@@ -52,16 +52,15 @@ function establishConnection() {
                 Authorization:finalHeader,
                 "Content-Type":"application/json"
             }
-        }).then((response) => {
+        }).then(response => {
             if (response.ok) {
-                response.json()
-            }
-            else {
+                return response.json();
+            } else {
                 prompt.innerHTML = "Error occurred. Check the API key or blame Ryan for bad coding.";
                 prompt.style.color = "#CC0000";
                 throw new Error("Connection failed.");
             }
-        }).then((data) => {
+        }).then(data => {
             console.log("Connection successful");
             prompt.innerHTML = "Entry granted.";
             prompt.style.color = "#3F9C5F";
@@ -72,13 +71,14 @@ function establishConnection() {
             infoSection.style.display = "inline";
             searchSection.style.display = "block";
             document.getElementById("userToken").style.display = "none";
+            console.log(data)
             resolve(data);
         })
     })
     getToken.then((token) => {
         sessionToken = token.session_token;
     }) 
-};
+}
 
 // Killing the granted session token //
 function killConnection(sessionToken){
@@ -118,6 +118,7 @@ function searchByTag(sessionToken){
     }
     else {
         console.log("Attempting search by serial " + searchTerm + "...");
+        console.log("Using session token " + sessionToken);
 
         // Searching for internal ID by tag (trust me it works)
         fetch('http://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2', {
@@ -128,7 +129,7 @@ function searchByTag(sessionToken){
             }
         }).then((response) => {
             if (response.ok) {
-                response.json();
+                return response.json();
             }
             else {
                 prompt.innerHTML = "Failed to search.";
@@ -170,7 +171,7 @@ function getInfo(sessionToken, itemID){
             }
         }).then((response) => {
             if (response.ok) {
-                response.json();
+                return response.json();
             }
             else {
                 prompt.innerHTML = "Failed to search.";
