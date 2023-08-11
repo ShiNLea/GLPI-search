@@ -10,6 +10,7 @@ body {
 
 table, th, td {
     border: 1px solid black;
+    color: black;
 }
 
 h2, h3, p {
@@ -52,6 +53,7 @@ td {
 
 tr:nth-child(even) {
     background-color: #eee;
+
 }
 
 th{
@@ -65,4 +67,5 @@ table {
     letter-spacing: 1px;
     font-family: 'Bitstream Vera Sans', Verdana, Tahoma, 'Sans serif';
     font-size: 16px;
+    background-color: #fff;
 }
