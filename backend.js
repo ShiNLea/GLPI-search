@@ -13,14 +13,23 @@ infoSection.style.display = "none";
 searchSection.style.display = "none";
 killConnectionButton.style.display = "none";
 
+
+
 // Declaring buttons beforehand
 const getConnection = document.querySelector("#get_Connection");
 const killSession = document.querySelector("#kill_Connection");
 const tagLookup = document.querySelector("#search_By_Tag");
+const darkModeToggle = document.querySelector("#darkModeToggle");
 getConnection.onclick = () => {establishConnection()};
 killSession.onclick = () => {killConnection(sessionToken)};
 tagLookup.onclick = () => {searchByTag(sessionToken)};
+darkModeToggle.onclick = () => {toggleDarkMode()}
 
+// Toggle between dark and light mode
+function toggleDarkMode() {
+    var element = document.body;
+    element.classList.toggle("light-mode");
+}
 // Declaring sessionToken as global; it's a surprise
 // tool that'll help us later
 var sessionToken;

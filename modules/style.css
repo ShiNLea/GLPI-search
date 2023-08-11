@@ -1,3 +1,13 @@
+body {
+    padding: 25px;
+    background-color: #262626;
+    color: white;
+}
+.light-mode {
+    background-color: white;
+    color: black;
+}
+
 table, th, td {
     border: 1px solid black;
 }
@@ -5,7 +15,11 @@ table, th, td {
 h2, h3, p {
     font-family: 'Bitstream Vera Sans', Verdana, Tahoma, 'Sans serif';
 }
-
+.toggle {
+    position: absolute;
+    top: 8px;
+    right: 16px;
+}
 .button {
     background-color: #4CAF50; /* Green */
     border: none;
