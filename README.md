@@ -9,7 +9,7 @@ This app taps into GLPI's API endpoints, gets data based on the service tag of t
 ## Usage
 ### Authentication
 Navigate to the "My settings" menu in GLPI. Scroll to the bottom and click the box that says "Regenerate" beside the field where the API token is supposed to be. 
-![image](https://github.com/RyanL-AtBDGL/GLPI-search/assets/135175046/acb37816-5889-41db-af3f-4ad6d06ec662)
+![API_Token](https://github.com/RyanL-AtBDGL/GLPI-search/assets/135175046/acb37816-5889-41db-af3f-4ad6d06ec662)
 Click save, and the page should reload itself. From there, you can click on the "API token" field and your token will be copied to your clipboard. 
 Open the app, and paste your token into the only visible field on the page. Click "Submit Token", and if all goes well, you should be authenticated. 
 ![Auth](https://github.com/RyanL-AtBDGL/GLPI-search/assets/135175046/2981b7b3-fcde-46b4-8f34-f8fdd04b2a86)
