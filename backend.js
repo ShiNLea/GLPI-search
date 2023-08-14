@@ -118,7 +118,6 @@ function searchByTag(sessionToken){
     }
     else {
         console.log("Attempting search by serial " + searchTerm + "...");
-        console.log("Using session token " + sessionToken);
 
         // Searching for internal ID by tag (trust me it works)
         fetch('http://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2', {

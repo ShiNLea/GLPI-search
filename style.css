@@ -13,7 +13,7 @@ table, th, td {
     color: black;
 }
 
-h2, h3, p {
+h2, h3, p, footer {
     font-family: 'Bitstream Vera Sans', Verdana, Tahoma, 'Sans serif';
 }
 .toggle {
