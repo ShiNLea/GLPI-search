@@ -163,12 +163,16 @@ function searchByTag(sessionToken){
                     }
                     else {
                         console.log("Search successful");
+                        prompt.innerHTML = "Search successful.";
+                        prompt.style.color = "#3F9C5F";
                         getInfo(sessionToken, json.data[0]["2"]);
                     }
                 })
             }
             else {
                 console.log("Search successful");
+                prompt.innerHTML = "Search successful.";
+                prompt.style.color = "#3F9C5F";
                 getInfo(sessionToken, json.data[0]["2"]);
             }
         })
