@@ -2,7 +2,7 @@
 
 Because I'm lazy, and I have the gall to use a good cause as a terrible excuse to learn JS and HTML.
 
-## Purpose
+## What it does
 
 This app taps into GLPI's API endpoints, gets data based on the service tag of the computer entered, and formats the data nicely into an HTML table, which can then be downloaded as a CSV file.
 
