@@ -4,7 +4,7 @@ Because I'm lazy, and I have the gall to use a good cause as a terrible excuse t
 
 ## Purpose
 
-This app taps into GLPI's API endpoints, gets data based on the service tag of the laptop entered, and formats the data nicely into an HTML table, which can then be downloaded as a CSV file.
+This app taps into GLPI's API endpoints, gets data based on the service tag of the computer entered, and formats the data nicely into an HTML table, which can then be downloaded as a CSV file.
 
 ## Usage
 ### Authentication
@@ -16,15 +16,15 @@ Open the app, and paste your token into the only visible field on the page. Clic
 
 ### Searching
 Assuming you haven't skipped authentication, searching is easy.
-To search, simply type either the service tag of the laptop into the "Service Tag" field, and click "Search".
+To search, simply type either the name or service tag of the computer into the "Service Tag" field, and click "Search".
 ![Search](https://github.com/RyanL-AtBDGL/GLPI-search/assets/135175046/d4a6553d-6e8b-463f-86d5-9bd155374704)
-> Using the service tag was shown above, but the name of the laptop works too. (Actually, it might work better now that I think about it...)
+> Using the service tag was shown above, but the name of the device works too.
 
 ## Bells and Whistles
 ### Dark Mode Toggle
 Yes, there's a light mode, it's just not enabled by default. To enable, simply click the only button on the top right corner. Bear in mind that the changes do NOT stay; if you like light mode then you have to change it every time. I haven't figured out how to keep it yet.
 ### (Almost) Automatic Screen Size
-If you have multiple laptops of the same model, the screen size will fill automatically **provided that you manually enter the screen size the first time you search a new model**. The app will copy the entry for the first system of its kind, which is to say that it'll be blank if you don't fill it out. 
+If you have multiple systems of the same model, the screen size will fill automatically **provided that you manually enter the screen size the first time you search a new model**. The app will copy the entry for the first system of its kind, which is to say that it'll be blank if you don't fill it out. 
 ![Screen Size](https://github.com/RyanL-AtBDGL/GLPI-search/assets/135175046/e5e12158-f088-4c4c-b502-c2cf4c1ff97e)
 
 ## Other than that...
