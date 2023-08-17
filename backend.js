@@ -71,7 +71,6 @@ function establishConnection() {
             infoSection.style.display = "inline";
             searchSection.style.display = "block";
             document.getElementById("userToken").style.display = "none";
-            console.log(data)
             resolve(data);
         })
     })
@@ -110,6 +109,7 @@ function killConnection(sessionToken){
 
 // Searching GLPI database for laptop based on serial ID //
 function searchByTag(sessionToken){
+    prompt = document.getElementById("successOrFailPrompt");
     const searchTerm = document.getElementById("searchTerm").value;
 
     // Accounting for blank search field
@@ -139,8 +139,33 @@ function searchByTag(sessionToken){
             var json = data;
             // Got a response but no data
             if (json.data === undefined) {
-                console.log("Search conducted; no results available.");
-                alert("Search conducted; no results available.");
+                fetch('http://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=5&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2', {
+                    method: "GET",
+                    headers: {
+                        "Session-Token":sessionToken,
+                        Authorization:document.getElementById("userToken").value
+                    }
+                }).then((response) => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    else {
+                        prompt.innerHTML = "Failed to search.";
+                        prompt.style.color = "#CC0000";
+                        throw new Error ("Failed to search.")
+                    }
+                }).then((data) => {
+                    var json = data;
+                    if (json.data === undefined) {
+                        prompt.innerHTML = "Search conducted; no results available.";
+                        prompt.style.color = "#CC0000";
+                        throw new Error ("Search conducted; no results available.")
+                    }
+                    else {
+                        console.log("Search successful");
+                        getInfo(sessionToken, json.data[0]["2"]);
+                    }
+                })
             }
             else {
                 console.log("Search successful");
@@ -152,6 +177,7 @@ function searchByTag(sessionToken){
 
 // Grabbing the ID# for the chosen system via API endpoint //
 function getInfo(sessionToken, itemID){
+    prompt = document.getElementById("successOrFailPrompt");
     // Accounting for existing devices
     itemID = itemID.toString(10);
     if (IDArray.includes(itemID)) {
@@ -360,7 +386,7 @@ function downloadCSVFile(csv_data) {
     var temp_link = document.createElement('a');
 
     // Download csv file
-    let fileName = Date().slice(0, 24) + ".csv";
+    let fileName = Date().slice(3, 24) + ".csv";
     fileName[22] = "-";
     fileName[19] = "-";
     temp_link.download = fileName;
