@@ -44,6 +44,7 @@ function establishConnection() {
         let finalHeader = "user_token ".concat(userToken);
         const prompt = document.getElementById("successOrFailPrompt");
 
+        // Fetch request for session token
         fetch("http://glpi.bdli.local/glpi/apirest.php/initSession", {
             method: "GET",
             mode:"cors",
@@ -53,6 +54,7 @@ function establishConnection() {
                 "Content-Type":"application/json"
             }
         }).then(response => {
+            // Error handling
             if (response.ok) {
                 return response.json();
             } else {
@@ -98,7 +100,6 @@ function killConnection(sessionToken){
             prompt.innerHTML = "Session killed. Reenter API Token for access.";
             prompt.style.color = "#3F9C5F";
             document.getElementById("userToken").style.display = "block";
-            //infoSection.style.display = "none";
         })}
     catch (error) {
         console.log("Session kill failed");
@@ -107,7 +108,7 @@ function killConnection(sessionToken){
     }
 }
 
-// Searching GLPI database for laptop based on serial ID //
+// Searching GLPI database for laptop based on user-entered term //
 function searchByTag(sessionToken){
     prompt = document.getElementById("successOrFailPrompt");
     const searchTerm = document.getElementById("searchTerm").value;
@@ -119,7 +120,7 @@ function searchByTag(sessionToken){
     else {
         console.log("Attempting search by serial " + searchTerm + "...");
 
-        // Searching for internal ID by tag (trust me it works)
+        // Searching for internal ID by name (trust me it works)
         fetch('http://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2', {
             method: "GET",
             headers: {
@@ -127,6 +128,7 @@ function searchByTag(sessionToken){
                 Authorization:document.getElementById("userToken").value
             }
         }).then((response) => {
+            // Error handling
             if (response.ok) {
                 return response.json();
             }
@@ -139,6 +141,8 @@ function searchByTag(sessionToken){
             var json = data;
             // Got a response but no data
             if (json.data === undefined) {
+                // Accounting for systems whose names do not include the service tag but service tag is entered.
+                // i.e. Input was tag "EX4MPL3" corresponding to system name "BDLI727".
                 fetch('http://glpi.bdli.local/glpi/apirest.php/search/Computer?is_deleted=0&as_map=0&criteria[0][link]=AND&criteria[0][field]=5&criteria[0][searchtype]=contains&criteria[0][value]=' + searchTerm + '&search=Search&itemtype=Computer&forcedisplay[0]=2', {
                     method: "GET",
                     headers: {
@@ -146,6 +150,7 @@ function searchByTag(sessionToken){
                         Authorization:document.getElementById("userToken").value
                     }
                 }).then((response) => {
+                    // Error handling, styling
                     if (response.ok) {
                         return response.json();
                     }
@@ -157,11 +162,13 @@ function searchByTag(sessionToken){
                 }).then((data) => {
                     var json = data;
                     if (json.data === undefined) {
+                        // Since both service tag and name have been searched, no need to look for other info
                         prompt.innerHTML = "Search conducted; no results available.";
                         prompt.style.color = "#CC0000";
                         throw new Error ("Search conducted; no results available.")
                     }
                     else {
+                        // Initiating info grab via serial number
                         console.log("Search successful");
                         prompt.innerHTML = "Search successful.";
                         prompt.style.color = "#3F9C5F";
@@ -169,6 +176,7 @@ function searchByTag(sessionToken){
                     }
                 })
             }
+            // Initiating info grab via device name
             else {
                 console.log("Search successful");
                 prompt.innerHTML = "Search successful.";
@@ -179,10 +187,10 @@ function searchByTag(sessionToken){
     }
 }
 
-// Grabbing the ID# for the chosen system via API endpoint //
+// Grabbing the ID# for the chosen system //
 function getInfo(sessionToken, itemID){
     prompt = document.getElementById("successOrFailPrompt");
-    // Accounting for existing devices
+    // Checking for existing devices
     itemID = itemID.toString(10);
     if (IDArray.includes(itemID)) {
         console.log("Existing entry for ID " + itemID + " detected; skipping entry")
@@ -203,15 +211,16 @@ function getInfo(sessionToken, itemID){
                 return response.json();
             }
             else {
-                prompt.innerHTML = "Failed to search.";
+                prompt.innerHTML = "Failed to get info.";
                 prompt.style.color = "#CC0000";
-                throw new Error("Search failed.");
+                throw new Error("Failed to get info.");
             }
         }).then((data) => {
             var json = data;
             console.log("Search conducted successfully.");
             // No search result
             if (json.count === 0){
+                console.log("No device found for the given search term.")
                 alert("No device found.");
             }
             else {
