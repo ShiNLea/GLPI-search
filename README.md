@@ -29,4 +29,4 @@ If you have multiple systems of the same model, the screen size will fill automa
 
 ## Other than that...
 the app worked perfectly fine for my usage in the Summer of 2023. If you have any issues, I dunno that sounds like both a you problem and a skill issue. 
-> This app was created by an employee of [Black Diamond Group](https://www.blackdiamondgroup.com/).
+> This app was created for internal usage at [Black Diamond Group](https://www.blackdiamondgroup.com/).
